@@ -17,9 +17,12 @@ import { cn } from '../../../shared/utils/cn';
 import { calculatePrice } from '../../../entities/cart/lib/cart-helpers';
 import { Image } from '../../../shared/ui/image';
 
+// Extract Addon type from Product
+type ProductAddon = NonNullable<Product['addons']>[number];
+
 interface AddonGroupProps {
   title: string;
-  addons: NonNullable<Product['addons']>;
+  addons: ProductAddon[];
   selectedAddons: Set<string>;
   onToggle: (id: string) => void;
 }
@@ -106,10 +109,10 @@ export const ProductDrawer: React.FC = () => {
   };
 
   const groupedAddons = useMemo(() => {
-    if (!product?.addons) return {};
-    const groups: Record<string, typeof product.addons> = {};
+    const groups: Record<string, ProductAddon[]> = {};
+    if (!product?.addons) return groups;
     
-    product.addons.forEach(addon => {
+    product.addons.forEach((addon: ProductAddon) => {
         const g = addon.group || 'Дополнительно';
         if (!groups[g]) groups[g] = [];
         groups[g].push(addon);
@@ -178,7 +181,7 @@ export const ProductDrawer: React.FC = () => {
                             <AddonGroup 
                                 key={group} 
                                 title={group} 
-                                addons={addons!} 
+                                addons={addons} 
                                 selectedAddons={selectedAddons}
                                 onToggle={toggleAddon}
                             />
