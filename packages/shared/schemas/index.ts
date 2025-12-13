@@ -51,6 +51,15 @@ export const ProductSchema = z.object({
   subcategory: z.string().optional(), // Added subcategory support
 });
 
+export const BannerSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string().optional(),
+  imageUrl: z.string().url(),
+  actionUrl: z.string().optional(),
+  textColor: z.string().optional().default('#ffffff'),
+});
+
 // --- Cart & Order Schemas ---
 
 export const CartItemSchema = z.object({

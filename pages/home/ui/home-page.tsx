@@ -1,12 +1,12 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { StickyHeader } from '../../../widgets/layout/ui/sticky-header';
 import { ProductFeed } from '../../../widgets/menu/ui/product-feed';
 import { CartSummaryBar } from '../../../features/cart/ui/cart-summary-bar';
 import { ProductDrawer } from '../../../widgets/product-details/ui/product-drawer';
+import { BannerCarousel } from '../../../widgets/banners/ui/banner-carousel';
 import { api } from '../../../shared/api/client';
-import { Shop, Category, Product } from '../../../shared/model/types';
+import { Shop, Category, Product, Banner } from '../../../shared/model/types';
 
 const HomePage = () => {
   const [activeCategoryId, setActiveCategoryId] = useState<string>('');
@@ -20,6 +20,11 @@ const HomePage = () => {
   const { data: categories = [] } = useQuery({ 
     queryKey: ['categories'], 
     queryFn: () => api.get<Category[]>('/api/v1/categories') 
+  });
+
+  const { data: banners = [], isLoading: isBannersLoading } = useQuery({
+    queryKey: ['banners'],
+    queryFn: () => api.get<Banner[]>('/api/v1/banners')
   });
 
   const { data: productsData } = useQuery({ 
@@ -55,6 +60,11 @@ const HomePage = () => {
         activeCategoryId={activeCategoryId}
         onCategoryClick={scrollToCategory}
       />
+      
+      {/* Banner Carousel */}
+      <div className="relative z-10">
+        <BannerCarousel banners={banners} isLoading={isBannersLoading} />
+      </div>
 
       <ProductFeed 
         categories={categories}

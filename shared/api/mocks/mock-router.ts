@@ -1,5 +1,5 @@
 import { OrderPayload, Order } from '../../model/types';
-import { MOCK_SHOP, MOCK_SHOPS, SHOP_DATABASES } from './data';
+import { MOCK_SHOP, MOCK_SHOPS, SHOP_DATABASES, MOCK_BANNERS } from './data';
 
 const SIMULATE_DELAY_MS = 600;
 
@@ -26,6 +26,11 @@ export const mockRouter = async (url: string, method: string, body?: any, header
   if (url === '/api/v1/shop' && method === 'GET') {
     const foundShop = MOCK_SHOPS.find(s => s.id === reqShopId) || MOCK_SHOP;
     return { status: 200, data: foundShop };
+  }
+
+  // --- GET /api/v1/banners ---
+  if (url === '/api/v1/banners' && method === 'GET') {
+    return { status: 200, data: MOCK_BANNERS };
   }
 
   // --- GET /api/v1/categories ---

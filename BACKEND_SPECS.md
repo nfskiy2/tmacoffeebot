@@ -2,7 +2,7 @@
 # API Contract (Backend Specifications)
 
 > **Status:** Draft
-> **Version:** 1.3.0
+> **Version:** 1.4.0
 > **Auth:** No auth for guest (public), Bearer Token for Admin.
 > **Multi-tenancy:** All requests MUST include `X-Shop-Id` header.
 
@@ -129,7 +129,29 @@ List of products. Can be filtered by category or specific IDs.
 
 ---
 
-## 3. Orders
+## 3. Banners
+
+### Get Banners
+List of promotional banners for the carousel.
+
+**GET** `/api/v1/banners`
+
+**Response (200 OK):**
+```json
+[
+  {
+    "id": "ban_1",
+    "title": "Бизнес-ланч",
+    "description": "Каждый понедельник с 22:00 до 23:00",
+    "imageUrl": "https://...",
+    "actionUrl": "category://food"
+  }
+]
+```
+
+---
+
+## 4. Orders
 
 ### Create Order
 Submit a new order.

@@ -1,5 +1,5 @@
 
-import { Shop, Category, Product } from '../../model/types';
+import { Shop, Category, Product, Banner } from '../../model/types';
 import { DELIVERY_SHOP_ID } from '../../config/constants';
 
 export const MOCK_SHOP_ID = 'shop_1';
@@ -59,6 +59,35 @@ export const MOCK_SHOPS: Shop[] = [
 ];
 
 export const MOCK_SHOP: Shop = MOCK_SHOPS[0];
+
+// --- BANNERS ---
+
+export const MOCK_BANNERS: Banner[] = [
+    {
+        id: 'ban_1',
+        title: 'Бизнес-ланч',
+        description: 'Каждый понедельник\nс 22.00 до 23.00',
+        imageUrl: 'https://images.unsplash.com/photo-1549488344-c7052fb51c9b?w=800&q=80',
+        actionUrl: '',
+        textColor: '#ffffff'
+    },
+    {
+        id: 'ban_2',
+        title: 'Кофе с собой -20%',
+        description: 'При заказе через приложение\nс 8:00 до 10:00',
+        imageUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80',
+        actionUrl: '',
+        textColor: '#ffffff'
+    },
+    {
+        id: 'ban_3',
+        title: 'Новые Десерты',
+        description: 'Попробуйте наши круассаны\nи чизкейки',
+        imageUrl: 'https://images.unsplash.com/photo-1509482560494-4126f8225994?w=800&q=80',
+        actionUrl: '',
+        textColor: '#ffffff'
+    }
+];
 
 // --- CATEGORIES DEFINITIONS ---
 
