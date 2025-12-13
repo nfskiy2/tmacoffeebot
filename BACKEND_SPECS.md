@@ -2,7 +2,7 @@
 # API Contract (Backend Specifications)
 
 > **Status:** Draft
-> **Version:** 1.4.0
+> **Version:** 1.5.0
 > **Auth:** No auth for guest (public), Bearer Token for Admin.
 > **Multi-tenancy:** All requests MUST include `X-Shop-Id` header.
 
@@ -124,6 +124,27 @@ List of products. Can be filtered by category or specific IDs.
     }
   ],
   "total": 100
+}
+```
+
+### Get Product Details
+Get a single product by ID.
+
+**GET** `/api/v1/products/:id`
+
+**Response (200 OK):**
+```json
+{
+  "id": "prod_1",
+  "categoryId": "cat_1",
+  "name": "Cappuccino",
+  "description": "Double espresso with steamed milk foam",
+  "price": 450,
+  "imageUrl": "https://picsum.photos/400",
+  "isAvailable": true,
+  "addons": [
+    { "id": "add_1", "name": "Coconut Milk", "price": 50 }
+  ]
 }
 ```
 

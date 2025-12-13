@@ -1,3 +1,4 @@
+
 import { OrderPayload, Order } from '../../model/types';
 import { MOCK_SHOP, MOCK_SHOPS, SHOP_DATABASES, MOCK_BANNERS } from './data';
 
@@ -38,6 +39,17 @@ export const mockRouter = async (url: string, method: string, body?: any, header
     return { status: 200, data: currentShopData.categories };
   }
 
+  // --- GET /api/v1/products/:id (Single Product) ---
+  const productMatch = url.match(/^\/api\/v1\/products\/([\w-]+)$/);
+  if (productMatch && method === 'GET') {
+    const productId = productMatch[1];
+    const product = currentShopData.products.find(p => p.id === productId);
+    if (product) {
+      return { status: 200, data: product };
+    }
+    return { status: 404, data: { message: 'Product not found' } };
+  }
+
   // --- GET /api/v1/products ---
   if (url.startsWith('/api/v1/products') && method === 'GET') {
     // Parse query params simply
@@ -68,20 +80,29 @@ export const mockRouter = async (url: string, method: string, body?: any, header
     const availableProducts = currentShopData.products;
 
     let totalAmount = 0;
-    payload.items.forEach(item => {
-      const product = availableProducts.find(p => p.id === item.productId);
-      if (product) {
-        let price = product.price;
-        // Add addon prices
-        if (item.selectedAddons) {
-          item.selectedAddons.forEach(addonId => {
-            const addon = product.addons?.find(a => a.id === addonId);
-            if (addon) price += addon.price;
-          });
-        }
-        totalAmount += price * item.quantity;
-      }
-    });
+    
+    try {
+        payload.items.forEach(item => {
+          const product = availableProducts.find(p => p.id === item.productId);
+          
+          if (!product) {
+              // SECURITY: Validation to prevent ordering items not in current context or invalid items
+              throw new Error(`Product ${item.productId} not found in current shop context`);
+          }
+
+          let price = product.price;
+          // Add addon prices
+          if (item.selectedAddons) {
+            item.selectedAddons.forEach(addonId => {
+              const addon = product.addons?.find(a => a.id === addonId);
+              if (addon) price += addon.price;
+            });
+          }
+          totalAmount += price * item.quantity;
+        });
+    } catch (e) {
+        return { status: 400, data: { message: (e as Error).message } };
+    }
 
     const newOrder: Order = {
       id: `ord_${Math.floor(Math.random() * 10000)}`,

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Drawer } from 'vaul';
 import { useSearchParams } from 'react-router-dom';
@@ -7,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { api } from '../../../shared/api/client';
 import { Product } from '../../../shared/model/types';
+import { ProductSchema } from '../../../packages/shared/schemas';
 import { useCartStore } from '../../../entities/cart/model/cart.store';
 import { useShopStore } from '../../../entities/shop/model/shop.store';
 import { QuantitySelector } from '../../../shared/ui/quantity-selector';
@@ -83,11 +85,11 @@ export const ProductDrawer: React.FC = () => {
     }
   }, [isOpen, productId]);
 
+  // OPTIMIZED: Fetch specific product instead of filtering list
   const { data: product } = useQuery({ 
-    queryKey: ['products', currentShopId], 
-    queryFn: () => api.get<{ items: Product[] }>('/api/v1/products', undefined, undefined, currentShopId || undefined),
-    enabled: isOpen,
-    select: (data) => data.items.find(p => p.id === productId)
+    queryKey: ['product', productId, currentShopId], 
+    queryFn: () => api.get<Product>(`/api/v1/products/${productId}`, ProductSchema, undefined, currentShopId || undefined),
+    enabled: isOpen && !!productId,
   });
   
   const handleClose = () => {
