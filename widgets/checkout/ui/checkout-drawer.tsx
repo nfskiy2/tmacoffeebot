@@ -1,7 +1,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { Drawer } from 'vaul';
-import { MapPin, CreditCard, LayoutGrid, Check, Armchair, Utensils } from 'lucide-react';
+import { MapPin, CreditCard, LayoutGrid, Check, Armchair, Utensils, Banknote } from 'lucide-react';
 import { useCartStore } from '../../../entities/cart/model/cart.store';
 import { useShopStore } from '../../../entities/shop/model/shop.store';
 import { Product, Shop } from '../../../shared/model/types';
@@ -47,7 +47,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
   const { deliveryAddress } = useShopStore();
 
   const [timeSlot, setTimeSlot] = useState<string>('asap');
-  const [paymentMethod, setPaymentMethod] = useState<'online' | 'offline'>('online');
+  const [paymentMethod, setPaymentMethod] = useState<'online' | 'offline' | 'cash'>('online');
 
   const timeSlots = useMemo(() => generateTimeSlots(), []);
 
@@ -195,6 +195,35 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
                      
                      {paymentMethod === 'offline' && (
                        <div className="absolute top-3 right-3 w-5 h-5 bg-black rounded-full flex items-center justify-center">
+                         <Check size={12} className="text-[#38bdf8]" strokeWidth={3} />
+                       </div>
+                     )}
+                   </button>
+
+                    {/* Cash */}
+                    <button
+                     onClick={() => setPaymentMethod('cash')}
+                     className={cn(
+                       "col-span-2 relative h-16 rounded-2xl p-4 flex items-center gap-4 text-left border transition-all",
+                       paymentMethod === 'cash'
+                         ? "bg-[#38bdf8] border-[#38bdf8]"
+                         : "bg-[#18181b] border-white/5 hover:border-white/10"
+                     )}
+                   >
+                     <Banknote 
+                       size={28} 
+                       className={cn(paymentMethod === 'cash' ? "text-black" : "text-white")} 
+                       strokeWidth={1.5}
+                     />
+                     <span className={cn(
+                       "text-[15px] font-bold leading-tight",
+                       paymentMethod === 'cash' ? "text-black" : "text-gray-200"
+                     )}>
+                       Наличными
+                     </span>
+                     
+                     {paymentMethod === 'cash' && (
+                       <div className="ml-auto w-5 h-5 bg-black rounded-full flex items-center justify-center">
                          <Check size={12} className="text-[#38bdf8]" strokeWidth={3} />
                        </div>
                      )}

@@ -4,11 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../../../shared/api/client';
 import { useCartStore } from '../../../entities/cart/model/cart.store';
 import { useShopStore } from '../../../entities/shop/model/shop.store';
-import { OrderSchema } from '../../../packages/shared/schemas';
+import { OrderSchema, PaymentMethodSchema } from '../../../packages/shared/schemas';
 
 interface CreateOrderParams {
   timeSlot: string;
-  paymentMethod: 'online' | 'offline';
+  paymentMethod: 'online' | 'offline' | 'cash';
   onSuccess?: () => void;
 }
 
@@ -29,7 +29,20 @@ export const useCreateOrder = () => {
       }
 
       // 3. Map Payment Method to API Enum
-      const paymentTypeApi = params.paymentMethod === 'online' ? 'CARD_ONLINE' : 'CARD_OFFLINE';
+      let paymentTypeApi;
+      switch (params.paymentMethod) {
+        case 'online':
+            paymentTypeApi = PaymentMethodSchema.enum.CARD_ONLINE;
+            break;
+        case 'offline':
+            paymentTypeApi = PaymentMethodSchema.enum.CARD_OFFLINE;
+            break;
+        case 'cash':
+            paymentTypeApi = PaymentMethodSchema.enum.CASH;
+            break;
+        default:
+            paymentTypeApi = PaymentMethodSchema.enum.CARD_ONLINE;
+      }
 
       // 4. Send Request
       return api.post(

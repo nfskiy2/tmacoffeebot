@@ -2,7 +2,7 @@
 # API Contract (Backend Specifications)
 
 > **Status:** Draft
-> **Version:** 1.5.0
+> **Version:** 1.5.3
 > **Auth:** No auth for guest (public), Bearer Token for Admin.
 > **Multi-tenancy:** All requests MUST include `X-Shop-Id` header.
 
@@ -117,9 +117,10 @@ List of products. Can be filtered by category or specific IDs.
       "price": 450,
       "imageUrl": "https://picsum.photos/400",
       "isAvailable": true,
+      "subcategory": "Hot Coffee",
       "addons": [
-        { "id": "add_1", "name": "Coconut Milk", "price": 50 },
-        { "id": "add_2", "name": "Syrup", "price": 30 }
+        { "id": "add_1", "name": "Coconut Milk", "price": 50, "group": "Milk" },
+        { "id": "add_2", "name": "Syrup", "price": 30, "group": "Syrups" }
       ]
     }
   ],
@@ -142,8 +143,9 @@ Get a single product by ID.
   "price": 450,
   "imageUrl": "https://picsum.photos/400",
   "isAvailable": true,
+  "subcategory": "Hot Coffee",
   "addons": [
-    { "id": "add_1", "name": "Coconut Milk", "price": 50 }
+    { "id": "add_1", "name": "Coconut Milk", "price": 50, "group": "Milk" }
   ]
 }
 ```
@@ -165,7 +167,8 @@ List of promotional banners for the carousel.
     "title": "Бизнес-ланч",
     "description": "Каждый понедельник с 22:00 до 23:00",
     "imageUrl": "https://...",
-    "actionUrl": "category://food"
+    "actionUrl": "category://food",
+    "textColor": "#ffffff"
   }
 ]
 ```
@@ -183,6 +186,9 @@ Submit a new order.
 ```json
 {
   "shopId": "uuid-string",
+  "type": "DINE_IN", 
+  "paymentMethod": "CARD_ONLINE", // Options: CARD_ONLINE, CARD_OFFLINE, CASH
+  "requestedTime": "12:30",
   "items": [
     {
       "productId": "prod_1",
@@ -190,7 +196,8 @@ Submit a new order.
       "selectedAddons": ["add_1"] 
     }
   ],
-  "comment": "No sugar please"
+  "comment": "No sugar please",
+  "deliveryAddress": "Optional address string"
 }
 ```
 

@@ -75,7 +75,7 @@ class ApiClient {
           return schema.parse(responseData);
         } catch (error) {
           if (error instanceof ZodError) {
-             const details = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+             const details = error.issues.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ');
              console.error(`[API Validation Error] ${endpoint}:`, details);
              throw new Error(`Contract Validation Failed for ${endpoint}: ${details}`);
           }

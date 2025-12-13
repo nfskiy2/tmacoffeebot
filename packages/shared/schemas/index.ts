@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 // --- Shared Types ---
@@ -8,6 +9,7 @@ export const ShopIdSchema = z.string().uuid().or(z.string()); // Allowing simple
 
 export const OrderStatusSchema = z.enum(['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED']);
 export const OrderTypeSchema = z.enum(['DINE_IN', 'TAKEOUT', 'DELIVERY']);
+export const PaymentMethodSchema = z.enum(['CARD_ONLINE', 'CARD_OFFLINE', 'CASH']);
 
 // --- Entity Schemas ---
 
@@ -71,6 +73,8 @@ export const CartItemSchema = z.object({
 export const OrderPayloadSchema = z.object({
   shopId: ShopIdSchema,
   type: OrderTypeSchema, // Added type
+  paymentMethod: PaymentMethodSchema,
+  requestedTime: z.string().optional(),
   items: z.array(CartItemSchema).min(1),
   comment: z.string().optional(),
   deliveryAddress: z.string().optional(), // For delivery orders
