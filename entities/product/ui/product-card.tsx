@@ -3,6 +3,7 @@ import React from 'react';
 import { Plus } from 'lucide-react';
 import { Product } from '../../../shared/model/types';
 import { cn } from '../../../shared/utils/cn';
+import { Image } from '../../../shared/ui/image';
 
 interface ProductCardProps {
   product: Product;
@@ -32,14 +33,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     >
       {/* Image Container */}
       <div className="relative w-full aspect-[4/3] bg-zinc-800 overflow-hidden">
-        <img 
+        <Image 
           src={product.imageUrl} 
           alt={product.name} 
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
         {/* Subtle gradient to make image sit nicer */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1c1c1e]/40 to-transparent opacity-50" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1c1c1e]/40 to-transparent opacity-50 pointer-events-none" />
       </div>
 
       {/* Content */}

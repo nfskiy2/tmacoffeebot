@@ -3,6 +3,7 @@ import React from 'react';
 import { Minus, Plus, X } from 'lucide-react';
 import { CartItem as CartItemType, Product } from '../../../shared/model/types';
 import { calculateItemTotal } from '../lib/cart-helpers';
+import { Image } from '../../../shared/ui/image';
 
 interface CartItemProps {
   item: CartItemType;
@@ -38,8 +39,8 @@ export const CartItem: React.FC<CartItemProps> = ({
       )}
 
       {/* Image */}
-      <div className="w-[100px] h-[100px] rounded-xl overflow-hidden bg-zinc-800 flex-shrink-0">
-        <img 
+      <div className="w-[100px] h-[100px] rounded-xl overflow-hidden bg-zinc-800 flex-shrink-0 relative">
+        <Image 
           src={product.imageUrl} 
           alt={product.name} 
           className="w-full h-full object-cover"

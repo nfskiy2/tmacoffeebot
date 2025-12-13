@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Drawer } from 'vaul';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { X, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { api } from '../../../shared/api/client';
@@ -13,6 +13,7 @@ import { QuantitySelector } from '../../../shared/ui/quantity-selector';
 import { AddonRow } from '../../../entities/product/ui/addon-row';
 import { cn } from '../../../shared/utils/cn';
 import { calculatePrice } from '../../../entities/cart/lib/cart-helpers';
+import { Image } from '../../../shared/ui/image';
 
 interface AddonGroupProps {
   title: string;
@@ -154,12 +155,12 @@ export const ProductDrawer: React.FC = () => {
               <>
                 {/* Product Cover */}
                 <div className="w-full aspect-[16/10] bg-zinc-800 relative">
-                   <img 
+                   <Image 
                      src={product.imageUrl} 
                      alt={product.name}
                      className="w-full h-full object-cover"
                    />
-                   <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] to-transparent opacity-80" />
+                   <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] to-transparent opacity-80 pointer-events-none" />
                 </div>
 
                 {/* Info Container */}

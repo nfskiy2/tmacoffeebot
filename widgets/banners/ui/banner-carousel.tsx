@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Banner } from '../../../shared/model/types';
-import { cn } from '../../../shared/utils/cn';
+import { Image } from '../../../shared/ui/image';
 
 interface BannerCarouselProps {
   banners: Banner[];
@@ -25,20 +26,20 @@ export const BannerCarousel: React.FC<BannerCarouselProps> = ({ banners, isLoadi
       {banners.map((banner) => (
         <div 
           key={banner.id}
-          className="relative shrink-0 w-[85%] aspect-[2.1/1] rounded-2xl overflow-hidden snap-center shadow-lg active:scale-[0.98] transition-transform"
+          className="relative shrink-0 w-[85%] aspect-[2.1/1] rounded-2xl overflow-hidden snap-center shadow-lg active:scale-[0.98] transition-transform bg-zinc-800"
         >
           {/* Background Image */}
-          <img 
+          <Image 
             src={banner.imageUrl} 
             alt={banner.title} 
             className="w-full h-full object-cover"
           />
           
           {/* Overlay Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent pointer-events-none" />
 
           {/* Text Content */}
-          <div className="absolute inset-0 p-5 flex flex-col justify-center items-start">
+          <div className="absolute inset-0 p-5 flex flex-col justify-center items-start pointer-events-none">
             <h3 className="text-white text-xl font-extrabold leading-tight mb-2 drop-shadow-md">
                 {banner.title}
             </h3>
