@@ -1,17 +1,23 @@
-
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { z } from 'zod';
+import { api } from '../../../shared/api/client';
+import { BannerSchema } from '../../../packages/shared/schemas';
 import { Banner } from '../../../shared/model/types';
 import { Image } from '../../../shared/ui/image';
 
-interface BannerCarouselProps {
-  banners: Banner[];
-  isLoading?: boolean;
-}
+// Schema for array of banners
+const BannerListSchema = z.array(BannerSchema);
 
-export const BannerCarousel: React.FC<BannerCarouselProps> = ({ banners, isLoading }) => {
+export const BannerCarousel: React.FC = () => {
+  const { data: banners = [], isLoading } = useQuery({
+    queryKey: ['banners'],
+    queryFn: () => api.get<Banner[]>('/api/v1/banners', BannerListSchema)
+  });
+
   if (isLoading) {
     return (
-      <div className="flex gap-4 px-4 overflow-hidden mt-4">
+      <div className="flex gap-4 px-4 overflow-hidden py-4">
         {[1, 2].map((i) => (
            <div key={i} className="shrink-0 w-[85%] aspect-[2.1/1] rounded-2xl bg-[#1c1c1e] animate-pulse" />
         ))}

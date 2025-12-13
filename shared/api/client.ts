@@ -1,3 +1,4 @@
+import { ZodSchema } from 'zod';
 import { mockRouter } from './mocks/mock-router';
 import { MOCK_SHOP_ID } from './mocks/data';
 
@@ -15,7 +16,7 @@ class ApiClient {
     this.shopId = id;
   }
 
-  private async request<T>(endpoint: string, config: RequestInit = {}): Promise<T> {
+  private async request<T>(endpoint: string, schema?: ZodSchema<T>, config: RequestInit = {}): Promise<T> {
     const currentShopId = this.shopId || MOCK_SHOP_ID;
     const url = `${this.baseUrl}${endpoint}`;
     
@@ -24,6 +25,9 @@ class ApiClient {
       'X-Shop-Id': currentShopId,
       ...(config.headers || {}),
     };
+
+    let responseData: any;
+    let status: number;
 
     // 1. Check Mock Router
     console.log(`[API] ${config.method || 'GET'} ${endpoint} [Shop: ${currentShopId}]`);
@@ -35,32 +39,44 @@ class ApiClient {
     );
     
     if (mockResponse) {
-      if (mockResponse.status >= 200 && mockResponse.status < 300) {
-        return mockResponse.data as T;
+      status = mockResponse.status;
+      responseData = mockResponse.data;
+    } else {
+      // 2. Real Fetch Fallback
+      const response = await fetch(url, {
+        ...config,
+        headers: headers as HeadersInit,
+      });
+      status = response.status;
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status} ${response.statusText}`);
       }
-      throw new Error(`Mock API Error: ${mockResponse.status}`);
+      responseData = await response.json();
     }
 
-    // 2. Real Fetch Fallback
-    const response = await fetch(url, {
-      ...config,
-      headers: headers as HeadersInit,
-    });
-
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    if (status >= 200 && status < 300) {
+      // 3. RUNTIME VALIDATION
+      if (schema) {
+        try {
+          return schema.parse(responseData);
+        } catch (error) {
+          console.error(`[API Validation Error] ${endpoint}:`, error);
+          throw new Error(`API Validation Error for ${endpoint}`);
+        }
+      }
+      return responseData as T;
     }
-
-    return response.json();
+    
+    throw new Error(`API Error: ${status}`);
   }
 
-  get<T>(endpoint: string, params?: Record<string, string>) {
+  get<T>(endpoint: string, schema?: ZodSchema<T>, params?: Record<string, string>) {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
-    return this.request<T>(endpoint + queryString, { method: 'GET' });
+    return this.request<T>(endpoint + queryString, schema, { method: 'GET' });
   }
 
-  post<T>(endpoint: string, body: any) {
-    return this.request<T>(endpoint, {
+  post<T>(endpoint: string, body: any, schema?: ZodSchema<T>) {
+    return this.request<T>(endpoint, schema, {
       method: 'POST',
       body: JSON.stringify(body),
     });
