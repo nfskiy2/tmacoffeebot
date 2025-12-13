@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../../shared/api/client';
 import { Product } from '../../../shared/model/types';
 import { useCartStore } from '../../../entities/cart/model/cart.store';
+import { useShopStore } from '../../../entities/shop/model/shop.store';
 import { QuantitySelector } from '../../../shared/ui/quantity-selector';
 import { AddonRow } from '../../../entities/product/ui/addon-row';
 import { cn } from '../../../shared/utils/cn';
@@ -69,6 +70,7 @@ export const ProductDrawer: React.FC = () => {
   const isOpen = !!productId;
 
   const { addItem } = useCartStore();
+  const currentShopId = useShopStore(s => s.currentShopId);
 
   // Local State for the drawer interaction
   const [quantity, setQuantity] = useState(1);
@@ -84,7 +86,7 @@ export const ProductDrawer: React.FC = () => {
 
   // Fetch product data
   const { data: productsData } = useQuery({ 
-    queryKey: ['products'], 
+    queryKey: ['products', currentShopId], 
     queryFn: () => api.get<{ items: Product[] }>('/api/v1/products'),
     enabled: isOpen
   });

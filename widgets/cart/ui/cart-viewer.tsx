@@ -1,38 +1,31 @@
+
 import React, { useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, Trash2, ArrowRight, Bike, ShoppingBag, Armchair, Clock, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { z } from 'zod';
 import { useCartStore } from '../../../entities/cart/model/cart.store';
 import { useShopStore } from '../../../entities/shop/model/shop.store';
 import { CartItem } from '../../../entities/cart/ui/cart-item';
-import { api } from '../../../shared/api/client';
-import { ShopSchema, ProductListResponseSchema } from '../../../packages/shared/schemas';
 import { Product, Shop } from '../../../shared/model/types';
 import { cn } from '../../../shared/utils/cn';
-import { CheckoutDrawer } from '../../checkout/ui/checkout-drawer';
 import { calculateCartTotal } from '../../../entities/cart/lib/cart-helpers';
 
-export const CartViewer: React.FC = () => {
+interface CartViewerProps {
+  products: Product[];
+  shop: Shop | undefined;
+  isLoading: boolean;
+  onCheckout: () => void;
+}
+
+export const CartViewer: React.FC<CartViewerProps> = ({ 
+  products, 
+  shop, 
+  isLoading, 
+  onCheckout 
+}) => {
   const navigate = useNavigate();
   const { items, updateQuantity, removeItem, clearCart, diningOption, setDiningOption } = useCartStore();
   const { deliveryAddress } = useShopStore();
-  const [isCheckoutOpen, setIsCheckoutOpen] = React.useState(false);
-  
-  // Fetch products for cart items (using Runtime Validation)
-  const { data: productData, isLoading: isProductsLoading } = useQuery({
-    queryKey: ['products'],
-    queryFn: () => api.get<{ items: Product[] }>('/api/v1/products', ProductListResponseSchema)
-  });
-
-  // Fetch shop for checkout context
-  const { data: shop } = useQuery({
-    queryKey: ['shop'],
-    queryFn: () => api.get<Shop>('/api/v1/shop', ShopSchema)
-  });
-
-  const products = productData?.items || [];
 
   const enrichedItems = useMemo(() => {
     return items.map(item => {
@@ -76,7 +69,7 @@ export const CartViewer: React.FC = () => {
 
   const ContextIcon = orderContext.icon;
 
-  if (isProductsLoading) return <div className="flex items-center justify-center text-gray-500 h-64">Загрузка корзины...</div>;
+  if (isLoading) return <div className="flex items-center justify-center text-gray-500 h-64">Загрузка корзины...</div>;
 
   if (items.length === 0) {
     return (
@@ -198,21 +191,13 @@ export const CartViewer: React.FC = () => {
         </div>
         
         <button
-          onClick={() => setIsCheckoutOpen(true)}
+          onClick={onCheckout}
           className="w-full bg-[#38bdf8] text-black font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all"
         >
           Оформить заказ
           <ArrowRight size={20} />
         </button>
       </div>
-
-      {/* Checkout Drawer */}
-      <CheckoutDrawer 
-        open={isCheckoutOpen} 
-        onOpenChange={setIsCheckoutOpen}
-        products={products}
-        shop={shop}
-      />
     </>
   );
 };

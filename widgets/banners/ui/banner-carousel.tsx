@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
@@ -5,13 +6,16 @@ import { api } from '../../../shared/api/client';
 import { BannerSchema } from '../../../packages/shared/schemas';
 import { Banner } from '../../../shared/model/types';
 import { Image } from '../../../shared/ui/image';
+import { useShopStore } from '../../../entities/shop/model/shop.store';
 
 // Schema for array of banners
 const BannerListSchema = z.array(BannerSchema);
 
 export const BannerCarousel: React.FC = () => {
+  const currentShopId = useShopStore((s) => s.currentShopId);
+
   const { data: banners = [], isLoading } = useQuery({
-    queryKey: ['banners'],
+    queryKey: ['banners', currentShopId],
     queryFn: () => api.get<Banner[]>('/api/v1/banners', BannerListSchema)
   });
 

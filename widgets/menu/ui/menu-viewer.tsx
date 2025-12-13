@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
@@ -7,6 +8,7 @@ import { Shop, Category, Product } from '../../../shared/model/types';
 import { StickyHeader } from '../../layout/ui/sticky-header';
 import { ProductFeed } from './product-feed';
 import { CartSummaryBar } from '../../../features/cart/ui/cart-summary-bar';
+import { useShopStore } from '../../../entities/shop/model/shop.store';
 
 const CategoryListSchema = z.array(CategorySchema);
 
@@ -16,20 +18,21 @@ interface MenuViewerProps {
 
 export const MenuViewer: React.FC<MenuViewerProps> = ({ heroSlot }) => {
   const [activeCategoryId, setActiveCategoryId] = useState<string>('');
+  const currentShopId = useShopStore((s) => s.currentShopId);
 
   // 1. Fetch Data
   const { data: shop } = useQuery({ 
-    queryKey: ['shop'], 
+    queryKey: ['shop', currentShopId], 
     queryFn: () => api.get<Shop>('/api/v1/shop', ShopSchema) 
   });
 
   const { data: categories = [] } = useQuery({ 
-    queryKey: ['categories'], 
+    queryKey: ['categories', currentShopId], 
     queryFn: () => api.get<Category[]>('/api/v1/categories', CategoryListSchema) 
   });
 
   const { data: productsData } = useQuery({ 
-    queryKey: ['products'], 
+    queryKey: ['products', currentShopId], 
     queryFn: () => api.get<{ items: Product[], total: number }>('/api/v1/products', ProductListResponseSchema) 
   });
 
