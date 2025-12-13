@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -69,7 +68,6 @@ const LocationsPage = () => {
         // Mode: Hall -> Clear delivery address
         setDeliveryAddress(null);
         setShopId(id);
-        localStorage.setItem('tma_shop_id', id);
         
         await queryClient.invalidateQueries();
         navigate('/');
@@ -87,7 +85,6 @@ const LocationsPage = () => {
         // Mode: Delivery -> Set address & Set Technical Shop ID
         setDeliveryAddress(fullAddress);
         setShopId(DELIVERY_SHOP_ID);
-        localStorage.setItem('tma_shop_id', DELIVERY_SHOP_ID);
 
         await queryClient.invalidateQueries();
         navigate('/');

@@ -1,15 +1,12 @@
-
 import React, { useMemo, useState } from 'react';
 import { Drawer } from 'vaul';
-import { useMutation } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
-import { MapPin, CreditCard, LayoutGrid, Clock, Utensils, Armchair, ChevronDown, Check } from 'lucide-react';
+import { MapPin, CreditCard, LayoutGrid, Check, Armchair, Utensils } from 'lucide-react';
 import { useCartStore } from '../../../entities/cart/model/cart.store';
 import { useShopStore } from '../../../entities/shop/model/shop.store';
-import { api } from '../../../shared/api/client';
 import { Product, Shop } from '../../../shared/model/types';
 import { cn } from '../../../shared/utils/cn';
 import { calculateCartTotal } from '../../../entities/cart/lib/cart-helpers';
+import { useCreateOrder } from '../../../features/checkout/model/use-create-order';
 
 // Helper to generate time slots
 const generateTimeSlots = () => {
@@ -44,9 +41,8 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
   products,
   shop 
 }) => {
-  const navigate = useNavigate();
-  const { items, clearCart, diningOption } = useCartStore();
-  const { currentShopId, deliveryAddress } = useShopStore();
+  const { items, diningOption } = useCartStore();
+  const { deliveryAddress } = useShopStore();
 
   const [timeSlot, setTimeSlot] = useState<string>('asap');
   const [paymentMethod, setPaymentMethod] = useState<'online' | 'offline'>('online');
@@ -60,31 +56,14 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
   const deliveryCost = 0;
   const finalTotal = totalAmount + deliveryCost;
 
-  const createOrderMutation = useMutation({
-    mutationFn: (payload: any) => api.post('/api/v1/orders', payload),
-    onSuccess: () => {
-      onOpenChange(false);
-      alert('Заказ успешно оплачен!');
-      clearCart();
-      navigate('/');
-    }
-  });
+  // Use Feature Hook
+  const createOrderMutation = useCreateOrder();
 
   const handlePay = () => {
-    const orderItems = items.map(({ cartId, ...rest }) => rest);
-    let orderType = 'DELIVERY';
-    if (!deliveryAddress) {
-        orderType = diningOption === 'dine-in' ? 'DINE_IN' : 'TAKEOUT';
-    }
-
     createOrderMutation.mutate({
-      shopId: currentShopId || 'default',
-      type: orderType,
-      items: orderItems,
-      comment: 'Drawer Order',
-      deliveryAddress: deliveryAddress || undefined,
-      paymentMethod: paymentMethod === 'online' ? 'CARD_ONLINE' : 'CARD_OFFLINE',
-      requestedTime: timeSlot
+      timeSlot,
+      paymentMethod,
+      onSuccess: () => onOpenChange(false)
     });
   };
 
