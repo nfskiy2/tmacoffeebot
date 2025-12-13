@@ -128,7 +128,8 @@ export const ProductDrawer: React.FC = () => {
 
   const handleAddToCart = () => {
     if (!product || !currentShopId) return;
-    addItem(product, currentShopId, quantity, Array.from(selectedAddons));
+    const addonsArray = [...selectedAddons];
+    addItem(product, currentShopId, quantity, addonsArray);
     handleClose();
   };
 

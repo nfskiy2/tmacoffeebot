@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -5,7 +6,7 @@ import { z } from 'zod';
 import { api } from '../../../shared/api/client';
 import { ShopSchema } from '../../../packages/shared/schemas';
 import { Shop } from '../../../shared/model/types';
-import { DELIVERY_SHOP_ID } from '../../../shared/api/mocks/data';
+import { DELIVERY_SHOP_ID } from '../../../shared/config/constants';
 import { useShopStore } from '../../../entities/shop/model/shop.store';
 import { ShopCard } from '../../../entities/shop/ui/shop-card';
 

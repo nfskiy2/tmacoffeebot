@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Category, Product } from '../../../shared/model/types';
@@ -10,6 +11,24 @@ interface ProductFeedProps {
   products: Product[];
   onCategoryInView: (categoryId: string) => void;
 }
+
+// Optimization: Wrapper component to handle callbacks without creating inline functions in the map loop
+// This ensures ProductCard.memo works effectively.
+const ProductFeedItem = React.memo(({ 
+    product, 
+    onOpen, 
+    onAdd 
+}: { 
+    product: Product; 
+    onOpen: (id: string) => void; 
+    onAdd: (product: Product, e: React.MouseEvent) => void; 
+}) => {
+    const handleClick = () => onOpen(product.id);
+    const handleAdd = (e: React.MouseEvent) => onAdd(product, e);
+
+    return <ProductCard product={product} onClick={handleClick} onAddToCart={handleAdd} />;
+});
+ProductFeedItem.displayName = 'ProductFeedItem';
 
 export const ProductFeed: React.FC<ProductFeedProps> = ({
   categories,
@@ -129,11 +148,11 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
                             )}
                             <div className="grid grid-cols-2 gap-3">
                                 {items.map(product => (
-                                    <ProductCard 
+                                    <ProductFeedItem 
                                       key={product.id}
                                       product={product}
-                                      onClick={() => handleProductClick(product.id)}
-                                      onAddToCart={(e) => handleQuickAdd(product, e)}
+                                      onOpen={handleProductClick}
+                                      onAdd={handleQuickAdd}
                                     />
                                 ))}
                             </div>

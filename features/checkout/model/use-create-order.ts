@@ -1,8 +1,10 @@
+
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../../shared/api/client';
 import { useCartStore } from '../../../entities/cart/model/cart.store';
 import { useShopStore } from '../../../entities/shop/model/shop.store';
+import { OrderSchema } from '../../../packages/shared/schemas';
 
 interface CreateOrderParams {
   timeSlot: string;
@@ -30,15 +32,20 @@ export const useCreateOrder = () => {
       const paymentTypeApi = params.paymentMethod === 'online' ? 'CARD_ONLINE' : 'CARD_OFFLINE';
 
       // 4. Send Request
-      return api.post('/api/v1/orders', {
-        shopId: currentShopId || 'default',
-        type: orderType,
-        items: orderItems,
-        comment: 'Drawer Order',
-        deliveryAddress: deliveryAddress || undefined,
-        paymentMethod: paymentTypeApi,
-        requestedTime: params.timeSlot
-      }, undefined, currentShopId || undefined);
+      return api.post(
+        '/api/v1/orders', 
+        {
+            shopId: currentShopId || 'default',
+            type: orderType,
+            items: orderItems,
+            comment: 'Drawer Order',
+            deliveryAddress: deliveryAddress || undefined,
+            paymentMethod: paymentTypeApi,
+            requestedTime: params.timeSlot
+        },
+        OrderSchema, // Enforce Zod Validation
+        currentShopId || undefined
+      );
     },
     onSuccess: (_, variables) => {
       variables.onSuccess?.();

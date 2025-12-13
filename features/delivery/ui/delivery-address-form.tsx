@@ -1,10 +1,10 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronDown } from 'lucide-react';
 import { useShopStore } from '../../../entities/shop/model/shop.store';
-import { useCartStore } from '../../../entities/cart/model/cart.store';
-import { DELIVERY_SHOP_ID } from '../../../shared/api/mocks/data';
+import { DELIVERY_SHOP_ID } from '../../../shared/config/constants';
 import { cn } from '../../../shared/utils/cn';
 
 interface DeliveryAddressFormProps {

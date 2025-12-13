@@ -1,4 +1,5 @@
-import { ZodSchema } from 'zod';
+
+import { ZodSchema, ZodError } from 'zod';
 import { mockRouter } from './mocks/mock-router';
 import { MOCK_SHOP_ID } from './mocks/data';
 
@@ -58,8 +59,13 @@ class ApiClient {
         try {
           return schema.parse(responseData);
         } catch (error) {
-          console.error(`[API Validation Error] ${endpoint}:`, error);
-          throw new Error(`API Validation Error for ${endpoint}`);
+          if (error instanceof ZodError) {
+             const details = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+             console.error(`[API Validation Error] ${endpoint}:`, details);
+             throw new Error(`Contract Validation Failed for ${endpoint}: ${details}`);
+          }
+          console.error(`[API Unknown Error] ${endpoint}:`, error);
+          throw error;
         }
       }
       return responseData as T;

@@ -3,6 +3,7 @@ import { Shop, Category, Product, Banner } from '../../model/types';
 import { DELIVERY_SHOP_ID } from '../../config/constants';
 
 export const MOCK_SHOP_ID = 'shop_1';
+// Re-export for compatibility if needed within mocks, but external consumers should use config
 export { DELIVERY_SHOP_ID };
 
 // --- SHOPS LIST ---
