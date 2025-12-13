@@ -1,0 +1,87 @@
+import { z } from 'zod';
+
+// --- Shared Types ---
+
+export const ShopIdSchema = z.string().uuid().or(z.string()); // Allowing simple string for mocks
+
+// --- Enums ---
+
+export const OrderStatusSchema = z.enum(['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED']);
+export const OrderTypeSchema = z.enum(['DINE_IN', 'TAKEOUT', 'DELIVERY']);
+
+// --- Entity Schemas ---
+
+export const ShopSchema = z.object({
+  id: ShopIdSchema,
+  name: z.string().min(1),
+  description: z.string().optional(),
+  address: z.string().optional(), // Added address
+  logoUrl: z.string().url(),
+  bannerUrl: z.string().url().optional(),
+  currency: z.string().default('USD'),
+  themeColor: z.string().regex(/^#([0-9a-fA-F]{3}){1,2}$/).default('#000000'),
+  isClosed: z.boolean().default(false),
+  openingHours: z.string().default("09:00 - 21:00"),
+});
+
+export const CategorySchema = z.object({
+  id: z.string(),
+  name: z.string().min(1),
+  slug: z.string().min(1),
+  iconUrl: z.string().url().optional(),
+  sortOrder: z.number().default(0),
+});
+
+export const ProductAddonSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  price: z.number().int().default(0), // Price in cents
+  group: z.string().optional(), // Added group for categorization
+});
+
+export const ProductSchema = z.object({
+  id: z.string(),
+  categoryId: z.string(),
+  name: z.string().min(1),
+  description: z.string().optional(),
+  price: z.number().int().min(0), // Price in cents
+  imageUrl: z.string().url(),
+  isAvailable: z.boolean().default(true),
+  addons: z.array(ProductAddonSchema).optional(),
+  subcategory: z.string().optional(), // Added subcategory support
+});
+
+// --- Cart & Order Schemas ---
+
+export const CartItemSchema = z.object({
+  productId: z.string(),
+  quantity: z.number().int().min(1),
+  selectedAddons: z.array(z.string()).optional(), // Array of Addon IDs
+});
+
+export const OrderPayloadSchema = z.object({
+  shopId: ShopIdSchema,
+  type: OrderTypeSchema, // Added type
+  items: z.array(CartItemSchema).min(1),
+  comment: z.string().optional(),
+  deliveryAddress: z.string().optional(), // For delivery orders
+});
+
+// Full Order Entity (Response)
+export const OrderSchema = z.object({
+  id: z.string(),
+  shopId: ShopIdSchema,
+  status: OrderStatusSchema,
+  type: OrderTypeSchema.optional(),
+  items: z.array(CartItemSchema),
+  totalAmount: z.number().int().min(0),
+  comment: z.string().optional(),
+  createdAt: z.string().datetime(), // ISO 8601
+});
+
+// --- API List Responses ---
+
+export const ProductListResponseSchema = z.object({
+  items: z.array(ProductSchema),
+  total: z.number(),
+});
