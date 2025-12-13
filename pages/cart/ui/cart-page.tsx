@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { CartViewer } from '../../../widgets/cart/ui/cart-viewer';
@@ -6,6 +7,7 @@ import { api } from '../../../shared/api/client';
 import { ShopSchema, ProductListResponseSchema } from '../../../packages/shared/schemas';
 import { Shop, Product } from '../../../shared/model/types';
 import { useShopStore } from '../../../entities/shop/model/shop.store';
+import { useCartSync } from '../../../features/cart/model/use-cart-sync';
 
 const CartPage = () => {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -25,6 +27,9 @@ const CartPage = () => {
 
   const products = productData?.items || [];
   const isLoading = isProductsLoading || isShopLoading;
+
+  // Sync Logic: Clean up ghost items if product list changes
+  useCartSync(products, isLoading);
 
   return (
     <div className="min-h-screen bg-[#09090b] text-white pb-32">

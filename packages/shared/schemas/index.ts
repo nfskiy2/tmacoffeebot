@@ -17,10 +17,10 @@ export const ShopSchema = z.object({
   id: ShopIdSchema,
   name: z.string().min(1),
   description: z.string().optional(),
-  address: z.string().optional(), // Added address
+  address: z.string().optional(),
   logoUrl: z.string().url(),
   bannerUrl: z.string().url().optional(),
-  currency: z.string().default('USD'),
+  currency: z.string().default('RUB'),
   themeColor: z.string().regex(/^#([0-9a-fA-F]{3}){1,2}$/).default('#000000'),
   isClosed: z.boolean().default(false),
   openingHours: z.string().default("09:00 - 21:00"),
@@ -37,8 +37,8 @@ export const CategorySchema = z.object({
 export const ProductAddonSchema = z.object({
   id: z.string(),
   name: z.string(),
-  price: z.number().int().default(0), // Price in cents
-  group: z.string().optional(), // Added group for categorization
+  price: z.number().int().default(0), // Price in cents/kopecks
+  group: z.string().optional(), 
 });
 
 export const ProductSchema = z.object({
@@ -46,11 +46,11 @@ export const ProductSchema = z.object({
   categoryId: z.string(),
   name: z.string().min(1),
   description: z.string().optional(),
-  price: z.number().int().min(0), // Price in cents
+  price: z.number().int().min(0), // Price in cents/kopecks
   imageUrl: z.string().url(),
   isAvailable: z.boolean().default(true),
   addons: z.array(ProductAddonSchema).optional(),
-  subcategory: z.string().optional(), // Added subcategory support
+  subcategory: z.string().optional(), 
 });
 
 export const BannerSchema = z.object({
@@ -70,17 +70,18 @@ export const CartItemSchema = z.object({
   selectedAddons: z.array(z.string()).optional(), // Array of Addon IDs
 });
 
+// The Payload sent TO the backend
 export const OrderPayloadSchema = z.object({
   shopId: ShopIdSchema,
-  type: OrderTypeSchema, // Added type
+  type: OrderTypeSchema, 
   paymentMethod: PaymentMethodSchema,
   requestedTime: z.string().optional(),
   items: z.array(CartItemSchema).min(1),
   comment: z.string().optional(),
-  deliveryAddress: z.string().optional(), // For delivery orders
+  deliveryAddress: z.string().optional(), 
 });
 
-// Full Order Entity (Response)
+// The Response received FROM the backend
 export const OrderSchema = z.object({
   id: z.string(),
   shopId: ShopIdSchema,
@@ -89,7 +90,7 @@ export const OrderSchema = z.object({
   items: z.array(CartItemSchema),
   totalAmount: z.number().int().min(0),
   comment: z.string().optional(),
-  createdAt: z.string().datetime(), // ISO 8601
+  createdAt: z.string().datetime().optional(), 
 });
 
 // --- API List Responses ---

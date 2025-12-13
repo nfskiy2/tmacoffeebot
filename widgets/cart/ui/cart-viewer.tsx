@@ -1,5 +1,5 @@
 
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ChevronLeft, Trash2, ArrowRight, Bike, ShoppingBag, Armchair, Clock, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -25,7 +25,7 @@ export const CartViewer: React.FC<CartViewerProps> = ({
   onCheckout 
 }) => {
   const navigate = useNavigate();
-  const { items, updateQuantity, removeItem, clearCart, diningOption, setDiningOption, syncCart } = useCartStore();
+  const { items, updateQuantity, removeItem, clearCart, diningOption, setDiningOption } = useCartStore();
   const { deliveryAddress } = useShopStore();
 
   const enrichedItems = useMemo(() => {
@@ -34,17 +34,6 @@ export const CartViewer: React.FC<CartViewerProps> = ({
       return { ...item, product };
     }).filter(item => item.product !== undefined) as (typeof items[0] & { product: Product })[];
   }, [items, products]);
-
-  // Clean up ghost items (items in cart that no longer exist in products list)
-  useEffect(() => {
-    if (!isLoading && products.length > 0) {
-        // Collect IDs of items that were successfully enriched (found in product list)
-        const validCartIds = enrichedItems.map(i => i.cartId);
-        if (validCartIds.length !== items.length) {
-            syncCart(validCartIds);
-        }
-    }
-  }, [isLoading, products.length, enrichedItems, items.length, syncCart]);
 
   // Logic to determine Order Context
   const orderContext = useMemo(() => {

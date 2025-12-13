@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Drawer } from 'vaul';
 import { useSearchParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -16,6 +17,7 @@ import { cn } from '../../../shared/utils/cn';
 import { calculatePrice } from '../../../entities/cart/lib/cart-helpers';
 import { Image } from '../../../shared/ui/image';
 import { formatPrice } from '../../../shared/lib/currency';
+import { URL_PARAMS } from '../../../shared/config/constants';
 
 // Extract Addon type safely from Product
 type ProductAddon = NonNullable<Product['addons']>[number];
@@ -70,11 +72,12 @@ const AddonGroup = ({ title, addons, selectedAddons, onToggle }: AddonGroupProps
 
 export const ProductDrawer: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const productId = searchParams.get('product');
+  const productId = searchParams.get(URL_PARAMS.PRODUCT);
   const isOpen = !!productId;
 
   const { addItem } = useCartStore();
   const currentShopId = useShopStore(s => s.currentShopId);
+  const queryClient = useQueryClient();
 
   // Local State for the drawer interaction
   const [quantity, setQuantity] = useState(1);
@@ -88,16 +91,22 @@ export const ProductDrawer: React.FC = () => {
     }
   }, [isOpen, productId]);
 
-  // OPTIMIZED: Fetch specific product instead of filtering list
+  // OPTIMIZED: Use placeholderData from existing list query to avoid loading states
   const { data: product } = useQuery({ 
     queryKey: ['product', productId, currentShopId], 
     queryFn: () => api.get<Product>(`/api/v1/products/${productId}`, ProductSchema, undefined, currentShopId || undefined),
     enabled: isOpen && !!productId,
+    placeholderData: () => {
+        if (!productId || !currentShopId) return undefined;
+        // Try to find product in the main products list cache
+        const listData = queryClient.getQueryData<{ items: Product[] }>(['products', currentShopId]);
+        return listData?.items?.find(p => p.id === productId);
+    }
   });
   
   const handleClose = () => {
     const newParams = new URLSearchParams(searchParams);
-    newParams.delete('product');
+    newParams.delete(URL_PARAMS.PRODUCT);
     setSearchParams(newParams, { replace: true });
   };
 

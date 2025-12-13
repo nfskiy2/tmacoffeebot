@@ -2,12 +2,14 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
+import { useSearchParams } from 'react-router-dom';
 
 import { api } from '../../../shared/api/client';
 import { ShopSchema, CategorySchema, ProductListResponseSchema } from '../../../packages/shared/schemas';
 import { Shop, Category, Product } from '../../../shared/model/types';
 import { useShopStore } from '../../../entities/shop/model/shop.store';
 import { useCartStore } from '../../../entities/cart/model/cart.store';
+import { URL_PARAMS } from '../../../shared/config/constants';
 
 // Widgets
 import { StickyHeader } from '../../../widgets/layout/ui/sticky-header';
@@ -26,8 +28,11 @@ const CategoryListSchema = z.array(CategorySchema);
 
 const HomePage = () => {
   const [activeCategoryId, setActiveCategoryId] = useState<string>('');
+  const [searchParams] = useSearchParams();
   const currentShopId = useShopStore((s) => s.currentShopId);
   const { validateSession } = useCartStore();
+
+  const isProductDrawerOpen = searchParams.has(URL_PARAMS.PRODUCT);
 
   // --- Data Fetching ---
   
@@ -111,10 +116,12 @@ const HomePage = () => {
       <CartSummaryBar products={products} />
 
       {/* 5. Details Drawer Widget (Global) */}
-      {/* Wrapped in Suspense because it's lazy loaded */}
-      <Suspense fallback={null}>
-        <ProductDrawer />
-      </Suspense>
+      {/* Optimization: Only render the suspense boundary if parameter exists */}
+      {isProductDrawerOpen && (
+        <Suspense fallback={null}>
+          <ProductDrawer />
+        </Suspense>
+      )}
     </div>
   );
 };

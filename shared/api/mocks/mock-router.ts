@@ -15,18 +15,33 @@ export const mockRouter = async (url: string, method: string, body?: any, header
 
   // Determine current shop database
   const reqShopId = headers['X-Shop-Id'];
-  // Fallback to shop_1 if ID is invalid or not found in DB, ensuring app doesn't crash
-  const currentShopData = SHOP_DATABASES[reqShopId] || SHOP_DATABASES['shop_1'];
 
   // --- GET /api/v1/shops ---
+  // Global endpoint, does not require a specific valid shop context in DB
   if (url === '/api/v1/shops' && method === 'GET') {
     return { status: 200, data: MOCK_SHOPS };
   }
 
+  // STRICT CHECK:
+  // If we are accessing specific shop resources, the Shop ID MUST exist in our database.
+  // We do NOT fallback to 'shop_1' anymore to prevent data leaks between tenants.
+  const currentShopData = SHOP_DATABASES[reqShopId];
+
+  if (!currentShopData) {
+    // If the request implies a specific shop context but it's invalid
+    if (url.startsWith('/api/v1/')) {
+       console.warn(`[MockRouter] 404 - Shop Context '${reqShopId}' not found for ${url}`);
+       return { status: 404, data: { message: `Shop context '${reqShopId}' not found.` } };
+    }
+    return null;
+  }
+
   // --- GET /api/v1/shop ---
   if (url === '/api/v1/shop' && method === 'GET') {
-    const foundShop = MOCK_SHOPS.find(s => s.id === reqShopId) || MOCK_SHOP;
-    return { status: 200, data: foundShop };
+    const foundShop = MOCK_SHOPS.find(s => s.id === reqShopId);
+    // Use MOCK_SHOP only if the ID exists in DB structure but not in MOCK_SHOPS list (edge case), 
+    // otherwise 404 logic above handles invalid IDs.
+    return { status: 200, data: foundShop || MOCK_SHOP };
   }
 
   // --- GET /api/v1/banners ---
@@ -76,7 +91,6 @@ export const mockRouter = async (url: string, method: string, body?: any, header
     const payload = body as OrderPayload;
     
     // For order calculation, we strictly use the products available in the shop context
-    // In a real app, this validation happens on backend
     const availableProducts = currentShopData.products;
 
     let totalAmount = 0;
@@ -86,7 +100,7 @@ export const mockRouter = async (url: string, method: string, body?: any, header
           const product = availableProducts.find(p => p.id === item.productId);
           
           if (!product) {
-              // SECURITY: Validation to prevent ordering items not in current context or invalid items
+              // SECURITY: Validation to prevent ordering items not in current context
               throw new Error(`Product ${item.productId} not found in current shop context`);
           }
 

@@ -1,78 +1,95 @@
 
 # API Contract (Backend Specifications)
 
-> **Status:** Draft
-> **Version:** 1.5.3
-> **Auth:** No auth for guest (public), Bearer Token for Admin.
-> **Multi-tenancy:** All requests MUST include `X-Shop-Id` header.
+> **Status:** RC 1.0 (Ready for Implementation)
+> **Protocol:** REST / JSON
+> **Base URL:** `/api/v1`
 
-## Global Headers
+## 🔐 Authentication & Multi-tenancy
 
-| Header | Type | Required | Description |
+### Headers
+Every request (except health checks) MUST include the tenant identifier.
+
+| Header | Value | Required | Description |
 | :--- | :--- | :--- | :--- |
-| `X-Shop-Id` | UUID (string) | **YES** | Identifies the tenant (coffee shop). |
-| `Content-Type` | string | YES | `application/json` |
+| `X-Shop-Id` | `UUID` or `String` | **YES** | The unique ID of the Coffee Shop (Tenant). Determines which database/menu to load. |
+| `Content-Type` | `application/json` | YES | - |
 
 ---
 
-## 1. Shop Configuration
+## 📚 Data Types & Enums
 
-### Get Current Shop Details
-Get public details about the specific coffee shop identified by `X-Shop-Id`.
+### 1. Order Status (`OrderStatus`)
+| Value | Description |
+| :--- | :--- |
+| `PENDING` | Order created, waiting for confirmation. |
+| `CONFIRMED` | Shop accepted the order. |
+| `COMPLETED` | Order fulfilled/picked up. |
+| `CANCELLED` | Order cancelled. |
 
-**GET** `/api/v1/shop`
+### 2. Order Type (`OrderType`)
+| Value | Description |
+| :--- | :--- |
+| `DINE_IN` | Customer is eating inside. |
+| `TAKEOUT` | Customer picks up "to go". |
+| `DELIVERY` | Delivery by courier. |
+
+### 3. Payment Method (`PaymentMethod`)
+| Value | Description |
+| :--- | :--- |
+| `CARD_ONLINE` | Paid via TMA interface (Stripe/Provider). |
+| `CARD_OFFLINE` | Will pay by card terminal upon receipt. |
+| `CASH` | Will pay cash upon receipt. |
+
+---
+
+## 📡 Endpoints
+
+### 1. Shop Configuration
+
+#### Get Current Shop
+Returns configuration for the shop identified by `X-Shop-Id`.
+
+`GET /shop`
 
 **Response (200 OK):**
 ```json
 {
-  "id": "uuid-string",
+  "id": "shop_1",
   "name": "Coffee & Code",
-  "description": "(Central Branch)",
-  "address": "123 Main St",
-  "logoUrl": "https://picsum.photos/200",
-  "bannerUrl": "https://picsum.photos/800/400",
-  "currency": "USD",
-  "themeColor": "#16a34a",
+  "description": "Best coffee in town",
+  "address": "123 Tech Blvd",
+  "logoUrl": "https://...",
+  "bannerUrl": "https://...",
+  "currency": "RUB",
+  "themeColor": "#38bdf8",
   "isClosed": false,
-  "openingHours": "Mon - Sun: 08:00 - 23:00"
+  "openingHours": "09:00 - 22:00"
 }
 ```
 
-### Get Available Shops
-List all available coffee shop locations for the tenant selection screen.
+#### Get All Shops
+Used for the "Select Location" screen.
+*Note: This endpoint might optionally ignore `X-Shop-Id` or use a "global" ID.*
 
-**GET** `/api/v1/shops`
+`GET /shops`
 
 **Response (200 OK):**
 ```json
 [
-  {
-    "id": "shop_1",
-    "name": "Main Street 50",
-    "description": "(Downtown)",
-    "address": "Main Street 50",
-    "logoUrl": "...",
-    "isClosed": false
-  },
-  {
-    "id": "shop_2",
-    "name": "Riverside 10",
-    "description": "(Riverside)",
-    "address": "Riverside 10",
-    "logoUrl": "...",
-    "isClosed": true
-  }
+  { "id": "shop_1", "name": "...", ... },
+  { "id": "shop_2", "name": "...", ... }
 ]
 ```
 
 ---
 
-## 2. Menu & Products
+### 2. Products & Menu
 
-### Get Categories
-List of active categories for the scroll-spy navigation.
+#### Get Categories
+Returns active categories sorted by `sortOrder`.
 
-**GET** `/api/v1/categories`
+`GET /categories`
 
 **Response (200 OK):**
 ```json
@@ -81,29 +98,20 @@ List of active categories for the scroll-spy navigation.
     "id": "cat_1",
     "name": "Coffee",
     "slug": "coffee",
-    "iconUrl": "https://cdn-icons-png.flaticon.com/512/751/751621.png",
+    "iconUrl": "...",
     "sortOrder": 0
-  },
-  {
-    "id": "cat_2",
-    "name": "Desserts",
-    "slug": "desserts",
-    "iconUrl": "https://cdn-icons-png.flaticon.com/512/3081/3081967.png",
-    "sortOrder": 1
   }
 ]
 ```
 
-### Get Products
-List of products. Can be filtered by category or specific IDs.
+#### Get Products
+Returns products for the current shop.
 
-**GET** `/api/v1/products`
+`GET /products`
 
-**Query Params:**
-- `categoryId` (optional): Filter by category ID.
-- `ids` (optional): Comma-separated list of product IDs (e.g., `prod_1,prod_2`).
-- `limit` (optional): Default 20.
-- `offset` (optional): Default 0.
+**Query Parameters:**
+- `categoryId` (Optional): Filter by category.
+- `ids` (Optional): Comma-separated list of IDs (e.g., `prod_1,prod_2`).
 
 **Response (200 OK):**
 ```json
@@ -113,60 +121,46 @@ List of products. Can be filtered by category or specific IDs.
       "id": "prod_1",
       "categoryId": "cat_1",
       "name": "Cappuccino",
-      "description": "Double espresso with steamed milk foam",
-      "price": 450,
-      "imageUrl": "https://picsum.photos/400",
+      "description": "...",
+      "price": 45000, // INTEGER (Cents/Kopecks)
+      "imageUrl": "...",
       "isAvailable": true,
-      "subcategory": "Hot Coffee",
+      "subcategory": "Milk Coffee",
       "addons": [
-        { "id": "add_1", "name": "Coconut Milk", "price": 50, "group": "Milk" },
-        { "id": "add_2", "name": "Syrup", "price": 30, "group": "Syrups" }
+        { 
+          "id": "add_1", 
+          "name": "Almond Milk", 
+          "price": 5000, // +50.00
+          "group": "Milk" 
+        }
       ]
     }
   ],
-  "total": 100
+  "total": 1
 }
 ```
 
-### Get Product Details
-Get a single product by ID.
-
-**GET** `/api/v1/products/:id`
+#### Get Single Product
+`GET /products/:id`
 
 **Response (200 OK):**
-```json
-{
-  "id": "prod_1",
-  "categoryId": "cat_1",
-  "name": "Cappuccino",
-  "description": "Double espresso with steamed milk foam",
-  "price": 450,
-  "imageUrl": "https://picsum.photos/400",
-  "isAvailable": true,
-  "subcategory": "Hot Coffee",
-  "addons": [
-    { "id": "add_1", "name": "Coconut Milk", "price": 50, "group": "Milk" }
-  ]
-}
-```
+Returns single `Product` object (same structure as item in list).
 
 ---
 
-## 3. Banners
+### 3. Marketing
 
-### Get Banners
-List of promotional banners for the carousel.
-
-**GET** `/api/v1/banners`
+#### Get Banners
+`GET /banners`
 
 **Response (200 OK):**
 ```json
 [
   {
     "id": "ban_1",
-    "title": "Бизнес-ланч",
-    "description": "Каждый понедельник с 22:00 до 23:00",
-    "imageUrl": "https://...",
+    "title": "Lunch Time",
+    "description": "...",
+    "imageUrl": "...",
     "actionUrl": "category://food",
     "textColor": "#ffffff"
   }
@@ -175,38 +169,63 @@ List of promotional banners for the carousel.
 
 ---
 
-## 4. Orders
+### 4. Order Processing
 
-### Create Order
-Submit a new order.
+#### Create Order
+Submit a new order. 
+**IMPORTANT:** The backend MUST recalculate the total price based on product IDs and Addon IDs to prevent price tampering. Do not trust a `totalAmount` sent from frontend.
 
-**POST** `/api/v1/orders`
+`POST /orders`
 
 **Request Body:**
 ```json
 {
-  "shopId": "uuid-string",
-  "type": "DINE_IN", 
-  "paymentMethod": "CARD_ONLINE", // Options: CARD_ONLINE, CARD_OFFLINE, CASH
-  "requestedTime": "12:30",
+  "shopId": "shop_1",
+  "type": "DINE_IN", // Enum: DINE_IN | TAKEOUT | DELIVERY
+  "paymentMethod": "CARD_ONLINE", // Enum: CARD_ONLINE | CARD_OFFLINE | CASH
+  "requestedTime": "ASAP", // or "12:30"
   "items": [
     {
       "productId": "prod_1",
       "quantity": 2,
-      "selectedAddons": ["add_1"] 
+      "selectedAddons": ["add_1", "add_3"] // Array of Addon IDs
     }
   ],
-  "comment": "No sugar please",
-  "deliveryAddress": "Optional address string"
+  "comment": "Extra hot",
+  "deliveryAddress": "Optional (Required if type=DELIVERY)"
 }
 ```
 
 **Response (201 Created):**
 ```json
 {
-  "id": "ord_123",
+  "id": "ord_8812",
+  "shopId": "shop_1",
   "status": "PENDING",
-  "totalAmount": 1100,
+  "type": "DINE_IN",
+  "items": [...], // Echo back items
+  "totalAmount": 95000, // Calculated by Backend
   "createdAt": "2023-10-27T10:00:00Z"
 }
 ```
+
+---
+
+## ⚠️ Error Handling
+
+Standard format for 4xx/5xx errors:
+
+```json
+{
+  "error": "Bad Request",
+  "message": "Product 'prod_99' not found in this shop.",
+  "code": "PRODUCT_NOT_FOUND" // Optional machine-readable code
+}
+```
+
+| Code | Meaning |
+| :--- | :--- |
+| `400` | Validation Error (Zod). |
+| `404` | Shop context not found or Product not found. |
+| `409` | Conflict (e.g., Product is out of stock). |
+| `500` | Internal Server Error. |
