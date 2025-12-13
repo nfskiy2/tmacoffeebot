@@ -1,7 +1,6 @@
 
 import { ZodSchema, ZodError } from 'zod';
 import { mockRouter } from './mocks/mock-router';
-import { MOCK_SHOP_ID } from './mocks/data';
 
 // --- Client Implementation ---
 
@@ -14,9 +13,22 @@ class ApiClient {
     config: RequestInit = {},
     shopId?: string
   ): Promise<T> {
-    // Explicitly use passed shopId, or fallback to Mock Default. 
-    // We never rely on internal state to avoid race conditions.
-    const currentShopId = shopId || MOCK_SHOP_ID;
+    // SECURITY IMPROVEMENT:
+    // We strictly require shopId for most requests to ensure tenant isolation.
+    // We do NOT default to a mock ID here to prevent accidental data mixing.
+    let currentShopId = shopId;
+
+    if (!currentShopId) {
+        // Exception: Getting the list of available shops doesn't require a specific shop context
+        if (endpoint === '/api/v1/shops') {
+            currentShopId = 'global'; 
+        } else {
+             const errorMsg = `[API Security] X-Shop-Id header is required for ${endpoint}. Request blocked.`;
+             console.error(errorMsg);
+             throw new Error(errorMsg);
+        }
+    }
+
     const url = `${this.baseUrl}${endpoint}`;
     
     const headers = {

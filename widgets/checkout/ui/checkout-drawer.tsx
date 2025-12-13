@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState } from 'react';
 import { Drawer } from 'vaul';
 import { MapPin, CreditCard, LayoutGrid, Check, Armchair, Utensils } from 'lucide-react';
@@ -87,6 +88,9 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
            {/* Title */}
            <div className="px-4 pb-4 border-b border-white/5 flex-shrink-0">
              <Drawer.Title className="text-xl font-bold text-white">Оформление заказа</Drawer.Title>
+             <Drawer.Description className="sr-only">
+               Выберите время готовности и способ оплаты
+             </Drawer.Description>
            </div>
 
            {/* Scrollable Content */}

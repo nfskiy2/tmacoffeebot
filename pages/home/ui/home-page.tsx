@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 
@@ -13,7 +14,12 @@ import { StickyHeader } from '../../../widgets/layout/ui/sticky-header';
 import { ProductFeed } from '../../../widgets/menu/ui/product-feed';
 import { CartSummaryBar } from '../../../features/cart/ui/cart-summary-bar';
 import { BannerCarousel } from '../../../widgets/banners/ui/banner-carousel';
-import { ProductDrawer } from '../../../widgets/product-details/ui/product-drawer';
+
+// Lazy Loaded Widgets
+// Optimized: Load drawer code only when needed to improve TTI (Time to Interactive)
+const ProductDrawer = React.lazy(() => 
+    import('../../../widgets/product-details/ui/product-drawer').then(module => ({ default: module.ProductDrawer }))
+);
 
 // Schemas
 const CategoryListSchema = z.array(CategorySchema);
@@ -105,7 +111,10 @@ const HomePage = () => {
       <CartSummaryBar products={products} />
 
       {/* 5. Details Drawer Widget (Global) */}
-      <ProductDrawer />
+      {/* Wrapped in Suspense because it's lazy loaded */}
+      <Suspense fallback={null}>
+        <ProductDrawer />
+      </Suspense>
     </div>
   );
 };

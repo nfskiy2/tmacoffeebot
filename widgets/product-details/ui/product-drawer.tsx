@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Drawer } from 'vaul';
 import { useSearchParams } from 'react-router-dom';
@@ -17,7 +16,7 @@ import { cn } from '../../../shared/utils/cn';
 import { calculatePrice } from '../../../entities/cart/lib/cart-helpers';
 import { Image } from '../../../shared/ui/image';
 
-// Extract Addon type from Product
+// Extract Addon type safely from Product
 type ProductAddon = NonNullable<Product['addons']>[number];
 
 interface AddonGroupProps {
@@ -110,7 +109,7 @@ export const ProductDrawer: React.FC = () => {
 
   const groupedAddons = useMemo(() => {
     const groups: Record<string, ProductAddon[]> = {};
-    if (!product?.addons) return groups;
+    if (!product?.addons || !Array.isArray(product.addons)) return groups;
     
     product.addons.forEach((addon: ProductAddon) => {
         const g = addon.group || 'Дополнительно';
@@ -123,12 +122,14 @@ export const ProductDrawer: React.FC = () => {
 
   const calculateTotal = () => {
     if (!product) return 0;
-    return calculatePrice(product, Array.from(selectedAddons), quantity);
+    // Use spread syntax for cleaner array conversion
+    return calculatePrice(product, [...selectedAddons], quantity);
   };
 
   const handleAddToCart = () => {
     if (!product || !currentShopId) return;
-    const addonsArray = [...selectedAddons];
+    // Fix: Explicitly spread Set to Array to avoid type inference issues
+    const addonsArray: string[] = [...selectedAddons];
     addItem(product, currentShopId, quantity, addonsArray);
     handleClose();
   };
@@ -145,6 +146,9 @@ export const ProductDrawer: React.FC = () => {
           <Drawer.Title className="sr-only">
             {product ? product.name : 'Детали продукта'}
           </Drawer.Title>
+          <Drawer.Description className="sr-only">
+            {product ? `Настройка и добавление в корзину: ${product.name}` : 'Загрузка информации о продукте'}
+          </Drawer.Description>
 
           {/* Handle */}
           <div className="w-full flex justify-center pt-3 pb-2 bg-[#09090b] rounded-t-[24px]">

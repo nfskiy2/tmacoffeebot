@@ -73,7 +73,10 @@ export const StickyHeader: React.FC<StickyHeaderProps> = ({
     <>
       <motion.header 
         className="fixed top-0 left-0 right-0 z-40 bg-[#09090b] overflow-hidden shadow-2xl shadow-black/80"
-        style={{ height: containerHeight }}
+        style={{ 
+            height: containerHeight,
+            willChange: 'height' // Performance optimization for older Android devices
+        }}
       >
         {/* ================= BACKGROUND LAYER ================= */}
         <motion.div 

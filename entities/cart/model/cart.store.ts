@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { CartItem, Product } from '../../../shared/model/types';
@@ -107,8 +108,12 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: 'tma-cart-storage',
+      // STORAGE NOTE:
+      // Currently using localStorage for prototype/web access.
+      // For production TMA, recommend migrating to Telegram CloudStorage or a custom sync adapter 
+      // to allow cross-device persistence (Desktop <-> Mobile).
       storage: createJSONStorage(() => localStorage),
-      version: 4, // Bump version due to logic change
+      version: 4, 
     }
   )
 );

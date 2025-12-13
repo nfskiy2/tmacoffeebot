@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
@@ -11,7 +12,8 @@ interface ShopState {
 export const useShopStore = create<ShopState>()(
   persist(
     (set) => ({
-      currentShopId: null,
+      // Set default shop to ensure app works out-of-the-box with strict API client
+      currentShopId: 'shop_1', 
       deliveryAddress: null,
       setShopId: (id) => set({ currentShopId: id }),
       setDeliveryAddress: (address) => set({ deliveryAddress: address }),
