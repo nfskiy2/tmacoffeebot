@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Category, Product } from '../../../shared/model/types';
 import { ProductCard } from '../../../entities/product/ui/product-card';
 import { useCartStore } from '../../../entities/cart/model/cart.store';
+import { useShopStore } from '../../../entities/shop/model/shop.store';
 
 interface ProductFeedProps {
   categories: Category[];
@@ -16,6 +17,8 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
   onCategoryInView
 }) => {
   const { addItem } = useCartStore();
+  const { currentShopId } = useShopStore();
+  
   const [_, setSearchParams] = useSearchParams();
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -46,22 +49,25 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
     return () => observer.disconnect();
   }, [categories, onCategoryInView]);
 
-  const handleProductClick = (productId: string) => {
+  // Memoize handlers to make ProductCard.memo effective
+  const handleProductClick = useCallback((productId: string) => {
     setSearchParams(prev => {
       prev.set('product', productId);
       return prev;
     });
-  };
+  }, [setSearchParams]);
 
-  const handleQuickAdd = (product: Product, e: React.MouseEvent) => {
+  const handleQuickAdd = useCallback((product: Product, e: React.MouseEvent) => {
     e.stopPropagation();
-    addItem(product);
+    if (currentShopId) {
+        addItem(product, currentShopId);
+    }
     
     // Haptic visual feedback
     const btn = e.currentTarget as HTMLButtonElement;
     btn.classList.add('scale-90');
     setTimeout(() => btn.classList.remove('scale-90'), 150);
-  };
+  }, [addItem, currentShopId]);
 
   // Performance Optimization: Memoize the grouping structure
   const menuStructure = useMemo(() => {

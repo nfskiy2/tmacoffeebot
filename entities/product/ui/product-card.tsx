@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Plus } from 'lucide-react';
 import { Product } from '../../../shared/model/types';
@@ -12,7 +11,7 @@ interface ProductCardProps {
   className?: string;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({
+export const ProductCard: React.FC<ProductCardProps> = React.memo(({
   product,
   onClick,
   onAddToCart,
@@ -70,4 +69,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       </div>
     </div>
   );
-};
+});
+
+ProductCard.displayName = 'ProductCard';

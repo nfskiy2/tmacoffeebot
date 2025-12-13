@@ -83,9 +83,6 @@ export const ProductDrawer: React.FC = () => {
     }
   }, [isOpen, productId]);
 
-  // Optimize: Reuse the same query key as HomePage (['products', currentShopId]).
-  // Use 'select' to retrieve ONLY the specific product.
-  // This avoids over-fetching if data is in cache, and avoids re-rendering if other products change.
   const { data: product } = useQuery({ 
     queryKey: ['products', currentShopId], 
     queryFn: () => api.get<{ items: Product[] }>('/api/v1/products', undefined, undefined, currentShopId || undefined),
@@ -125,8 +122,8 @@ export const ProductDrawer: React.FC = () => {
   };
 
   const handleAddToCart = () => {
-    if (!product) return;
-    addItem(product, quantity, Array.from(selectedAddons));
+    if (!product || !currentShopId) return;
+    addItem(product, currentShopId, quantity, Array.from(selectedAddons));
     handleClose();
   };
 

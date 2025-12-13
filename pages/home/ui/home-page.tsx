@@ -6,6 +6,7 @@ import { api } from '../../../shared/api/client';
 import { ShopSchema, CategorySchema, ProductListResponseSchema } from '../../../packages/shared/schemas';
 import { Shop, Category, Product } from '../../../shared/model/types';
 import { useShopStore } from '../../../entities/shop/model/shop.store';
+import { useCartStore } from '../../../entities/cart/model/cart.store';
 
 // Widgets
 import { StickyHeader } from '../../../widgets/layout/ui/sticky-header';
@@ -20,9 +21,9 @@ const CategoryListSchema = z.array(CategorySchema);
 const HomePage = () => {
   const [activeCategoryId, setActiveCategoryId] = useState<string>('');
   const currentShopId = useShopStore((s) => s.currentShopId);
+  const { validateSession } = useCartStore();
 
   // --- Data Fetching ---
-  // We explicitly pass currentShopId to api.get to resolve race conditions
   
   const { data: shop } = useQuery({ 
     queryKey: ['shop', currentShopId], 
@@ -42,6 +43,13 @@ const HomePage = () => {
   const products = productsData?.items || [];
 
   // --- Logic ---
+  
+  // Validate Cart Session to ensure cart items belong to this shop
+  useEffect(() => {
+      if (currentShopId) {
+          validateSession(currentShopId);
+      }
+  }, [currentShopId, validateSession]);
 
   // Set initial active category
   useEffect(() => {
