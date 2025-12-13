@@ -1,5 +1,4 @@
-
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Category, Product } from '../../../shared/model/types';
 import { ProductCard } from '../../../entities/product/ui/product-card';
@@ -64,25 +63,38 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
     setTimeout(() => btn.classList.remove('scale-90'), 150);
   };
 
+  // Performance Optimization: Memoize the grouping structure
+  const menuStructure = useMemo(() => {
+    return categories.map(category => {
+      const categoryProducts = products.filter(p => p.categoryId === category.id);
+      
+      if (categoryProducts.length === 0) return null;
+
+      const groupedProducts: Record<string, Product[]> = {};
+      const subcategories: string[] = [];
+
+      categoryProducts.forEach(p => {
+          const sub = p.subcategory || '@@other';
+          if (!groupedProducts[sub]) {
+              groupedProducts[sub] = [];
+              subcategories.push(sub);
+          }
+          groupedProducts[sub].push(p);
+      });
+
+      return {
+        category,
+        subcategories,
+        groupedProducts
+      };
+    }).filter(Boolean); // Remove nulls
+  }, [categories, products]);
+
   return (
     <div className="flex flex-col gap-8 pb-32 px-4">
-      {categories.map((category) => {
-        const categoryProducts = products.filter(p => p.categoryId === category.id);
-        
-        if (categoryProducts.length === 0) return null;
-
-        // Group products by subcategory
-        const groupedProducts: Record<string, Product[]> = {};
-        const subcategories: string[] = [];
-
-        categoryProducts.forEach(p => {
-            const sub = p.subcategory || '@@other';
-            if (!groupedProducts[sub]) {
-                groupedProducts[sub] = [];
-                subcategories.push(sub);
-            }
-            groupedProducts[sub].push(p);
-        });
+      {menuStructure.map((group) => {
+        if (!group) return null; // Type guard, though filter handled it
+        const { category, subcategories, groupedProducts } = group;
 
         return (
           <div 
@@ -94,12 +106,7 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
             }}
             className="scroll-mt-[120px]" 
           >
-            {/* 
-              Sticky Header for Category:
-              - top-[110px]: Matches the COLLAPSED_HEIGHT of the main sticky header.
-              - z-30: Sits above cards (default) but below Main Header (z-40).
-              - bg/backdrop: Ensures content doesn't show through messy.
-            */}
+            {/* Sticky Header for Category */}
             <h2 className="text-xl font-bold text-white py-3 sticky top-[110px] z-30 bg-[#09090b]/95 backdrop-blur-md -mx-4 px-4 mb-2 shadow-sm border-b border-white/5">
               {category.name}
             </h2>

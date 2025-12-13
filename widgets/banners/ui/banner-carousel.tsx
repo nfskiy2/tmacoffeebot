@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
@@ -16,7 +15,7 @@ export const BannerCarousel: React.FC = () => {
 
   const { data: banners = [], isLoading } = useQuery({
     queryKey: ['banners', currentShopId],
-    queryFn: () => api.get<Banner[]>('/api/v1/banners', BannerListSchema)
+    queryFn: () => api.get<Banner[]>('/api/v1/banners', BannerListSchema, undefined, currentShopId || undefined)
   });
 
   if (isLoading) {

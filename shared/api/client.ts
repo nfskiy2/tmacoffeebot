@@ -6,18 +6,16 @@ import { MOCK_SHOP_ID } from './mocks/data';
 
 class ApiClient {
   private baseUrl = ''; // Empty for mock usage, usually process.env.API_URL
-  private shopId: string | null = null;
 
-  /**
-   * Sets the context for the current shop tenant.
-   * Should be called when the app initializes or switches shops.
-   */
-  public setShopId(id: string) {
-    this.shopId = id;
-  }
-
-  private async request<T>(endpoint: string, schema?: ZodSchema<T>, config: RequestInit = {}): Promise<T> {
-    const currentShopId = this.shopId || MOCK_SHOP_ID;
+  private async request<T>(
+    endpoint: string, 
+    schema?: ZodSchema<T>, 
+    config: RequestInit = {},
+    shopId?: string
+  ): Promise<T> {
+    // Explicitly use passed shopId, or fallback to Mock Default. 
+    // We never rely on internal state to avoid race conditions.
+    const currentShopId = shopId || MOCK_SHOP_ID;
     const url = `${this.baseUrl}${endpoint}`;
     
     const headers = {
@@ -70,16 +68,16 @@ class ApiClient {
     throw new Error(`API Error: ${status}`);
   }
 
-  get<T>(endpoint: string, schema?: ZodSchema<T>, params?: Record<string, string>) {
+  get<T>(endpoint: string, schema?: ZodSchema<T>, params?: Record<string, string>, shopId?: string) {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
-    return this.request<T>(endpoint + queryString, schema, { method: 'GET' });
+    return this.request<T>(endpoint + queryString, schema, { method: 'GET' }, shopId);
   }
 
-  post<T>(endpoint: string, body: any, schema?: ZodSchema<T>) {
+  post<T>(endpoint: string, body: any, schema?: ZodSchema<T>, shopId?: string) {
     return this.request<T>(endpoint, schema, {
       method: 'POST',
       body: JSON.stringify(body),
-    });
+    }, shopId);
   }
 }
 

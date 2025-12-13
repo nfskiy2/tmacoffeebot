@@ -22,7 +22,9 @@ export const ShopList: React.FC<ShopListProps> = ({ onRequestChangeContext }) =>
 
   const { data: shops = [], isLoading } = useQuery({
     queryKey: ['shops'],
-    queryFn: () => api.get<Shop[]>('/api/v1/shops', ShopListResponseSchema),
+    // Fetching the list of shops doesn't depend on a specific shop context, 
+    // but the API spec requires X-Shop-Id. We can pass the current one or a default.
+    queryFn: () => api.get<Shop[]>('/api/v1/shops', ShopListResponseSchema, undefined, currentShopId || undefined),
   });
 
   // Filter out the technical delivery shop from the "Hall" list

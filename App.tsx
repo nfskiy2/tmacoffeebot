@@ -1,9 +1,6 @@
-import React, { Suspense, lazy, useEffect } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useShopStore } from './entities/shop/model/shop.store';
-import { api } from './shared/api/client';
-import { MOCK_SHOP_ID } from './shared/api/mocks/data';
 
 // Eager load Home Page
 import HomePage from './pages/home/ui/home-page';
@@ -39,16 +36,6 @@ const AdminPage = () => (
 );
 
 const App: React.FC = () => {
-  const currentShopId = useShopStore((state) => state.currentShopId);
-
-  // Sync Store ID to API Client
-  useEffect(() => {
-    // If no shop selected yet (first load), fallback to default mock, 
-    // but don't set it in store so user can still choose later if we add a "Select Shop" landing.
-    // For now, our app defaults to MOCK_SHOP_ID if logic asks for it, but let's be explicit in API.
-    api.setShopId(currentShopId || MOCK_SHOP_ID);
-  }, [currentShopId]);
-
   return (
     <QueryClientProvider client={queryClient}>
       <HashRouter>

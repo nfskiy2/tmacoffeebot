@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { CartViewer } from '../../../widgets/cart/ui/cart-viewer';
@@ -13,16 +12,15 @@ const CartPage = () => {
   const currentShopId = useShopStore((s) => s.currentShopId);
 
   // Fetch products for cart items and checkout total calculation
-  // Key includes currentShopId to ensure data consistency
   const { data: productData, isLoading: isProductsLoading } = useQuery({
     queryKey: ['products', currentShopId],
-    queryFn: () => api.get<{ items: Product[] }>('/api/v1/products', ProductListResponseSchema)
+    queryFn: () => api.get<{ items: Product[] }>('/api/v1/products', ProductListResponseSchema, undefined, currentShopId || undefined)
   });
 
-  // Fetch shop for checkout context (addresses, etc)
+  // Fetch shop for checkout context
   const { data: shop, isLoading: isShopLoading } = useQuery({
     queryKey: ['shop', currentShopId],
-    queryFn: () => api.get<Shop>('/api/v1/shop', ShopSchema)
+    queryFn: () => api.get<Shop>('/api/v1/shop', ShopSchema, undefined, currentShopId || undefined)
   });
 
   const products = productData?.items || [];

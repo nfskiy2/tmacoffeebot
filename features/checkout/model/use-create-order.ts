@@ -38,7 +38,7 @@ export const useCreateOrder = () => {
         deliveryAddress: deliveryAddress || undefined,
         paymentMethod: paymentTypeApi,
         requestedTime: params.timeSlot
-      });
+      }, undefined, currentShopId || undefined);
     },
     onSuccess: (_, variables) => {
       variables.onSuccess?.();

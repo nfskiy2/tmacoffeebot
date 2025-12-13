@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Drawer } from 'vaul';
 import { useSearchParams } from 'react-router-dom';
@@ -84,17 +83,16 @@ export const ProductDrawer: React.FC = () => {
     }
   }, [isOpen, productId]);
 
-  // Fetch product data
-  const { data: productsData } = useQuery({ 
+  // Optimize: Reuse the same query key as HomePage (['products', currentShopId]).
+  // Use 'select' to retrieve ONLY the specific product.
+  // This avoids over-fetching if data is in cache, and avoids re-rendering if other products change.
+  const { data: product } = useQuery({ 
     queryKey: ['products', currentShopId], 
-    queryFn: () => api.get<{ items: Product[] }>('/api/v1/products'),
-    enabled: isOpen
+    queryFn: () => api.get<{ items: Product[] }>('/api/v1/products', undefined, undefined, currentShopId || undefined),
+    enabled: isOpen,
+    select: (data) => data.items.find(p => p.id === productId)
   });
   
-  const product = useMemo(() => 
-    productsData?.items.find(p => p.id === productId), 
-  [productsData, productId]);
-
   const handleClose = () => {
     const newParams = new URLSearchParams(searchParams);
     newParams.delete('product');

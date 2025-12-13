@@ -1,7 +1,7 @@
-
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { CartItem, Product } from '../../../shared/model/types';
+import { useShopStore } from '../../shop/model/shop.store';
 
 export type CartStateItem = CartItem & {
   cartId: string;
@@ -10,6 +10,7 @@ export type CartStateItem = CartItem & {
 export type DiningOption = 'dine-in' | 'takeout';
 
 interface CartState {
+  shopId: string | null; // Tracks which shop these items belong to
   items: CartStateItem[];
   diningOption: DiningOption;
   setDiningOption: (option: DiningOption) => void;
@@ -23,16 +24,33 @@ interface CartState {
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
+      shopId: null,
       items: [],
       diningOption: 'dine-in', // Default value
 
       setDiningOption: (option) => set({ diningOption: option }),
       
       addItem: (product, quantity = 1, selectedAddons = []) => {
-        const { items } = get();
+        const { items, shopId: cartShopId } = get();
         
+        // Access current shop from ShopStore to ensure isolation
+        const currentShopId = useShopStore.getState().currentShopId;
+
+        // Security/Logic Check: 
+        // If cart has items from Shop A, but user adds item from Shop B -> Clear Cart
+        if (cartShopId && currentShopId && cartShopId !== currentShopId) {
+            set({ items: [], shopId: currentShopId });
+            // Note: We continue to add the new item below to the empty cart
+        } else if (!cartShopId && currentShopId) {
+            // Initialize shop ID if empty
+            set({ shopId: currentShopId });
+        }
+
+        // Re-read items in case they were cleared above
+        const currentItems = get().items;
+
         // Check for existing item with same ProductID AND exactly same Addons
-        const existingItemIndex = items.findIndex((i) => {
+        const existingItemIndex = currentItems.findIndex((i) => {
             const sameId = i.productId === product.id;
             const existingAddons = (i.selectedAddons || []).slice().sort().join(',');
             const newAddons = (selectedAddons || []).slice().sort().join(',');
@@ -40,7 +58,7 @@ export const useCartStore = create<CartState>()(
         });
 
         if (existingItemIndex !== -1) {
-          const newItems = [...items];
+          const newItems = [...currentItems];
           newItems[existingItemIndex].quantity += quantity;
           set({ items: newItems });
         } else {
@@ -52,7 +70,7 @@ export const useCartStore = create<CartState>()(
              selectedAddons: selectedAddons || []
           };
           set({
-            items: [...items, newItem],
+            items: [...currentItems, newItem],
           });
         }
       },
@@ -83,7 +101,16 @@ export const useCartStore = create<CartState>()(
     {
       name: 'tma-cart-storage',
       storage: createJSONStorage(() => localStorage),
-      version: 2, // Bump version for new field
+      version: 3, // Bump version
+      // Safety check on hydration: if shop context changed while app was closed
+      onRehydrateStorage: () => (state) => {
+         const currentShop = useShopStore.getState().currentShopId;
+         if (state && state.shopId && currentShop && state.shopId !== currentShop) {
+             // Invalidate stale cart data from a different shop
+             state.items = [];
+             state.shopId = currentShop;
+         }
+      }
     }
   )
 );
