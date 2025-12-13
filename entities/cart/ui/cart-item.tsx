@@ -4,6 +4,7 @@ import { Minus, Plus, X } from 'lucide-react';
 import { CartItem as CartItemType, Product } from '../../../shared/model/types';
 import { calculateItemTotal } from '../lib/cart-helpers';
 import { Image } from '../../../shared/ui/image';
+import { formatPrice } from '../../../shared/lib/currency';
 
 interface CartItemProps {
   item: CartItemType;
@@ -89,7 +90,7 @@ export const CartItem: React.FC<CartItemProps> = ({
            
            {/* Total Price */}
            <span className="text-white font-black text-[18px]">
-              {(totalPrice / 100).toFixed(0)}₽
+              {formatPrice(totalPrice)}
            </span>
         </div>
       </div>

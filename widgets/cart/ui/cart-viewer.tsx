@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ChevronLeft, Trash2, ArrowRight, Bike, ShoppingBag, Armchair, Clock, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -9,6 +9,7 @@ import { CartItem } from '../../../entities/cart/ui/cart-item';
 import { Product, Shop } from '../../../shared/model/types';
 import { cn } from '../../../shared/utils/cn';
 import { calculateCartTotal } from '../../../entities/cart/lib/cart-helpers';
+import { formatPrice } from '../../../shared/lib/currency';
 
 interface CartViewerProps {
   products: Product[];
@@ -24,7 +25,7 @@ export const CartViewer: React.FC<CartViewerProps> = ({
   onCheckout 
 }) => {
   const navigate = useNavigate();
-  const { items, updateQuantity, removeItem, clearCart, diningOption, setDiningOption } = useCartStore();
+  const { items, updateQuantity, removeItem, clearCart, diningOption, setDiningOption, syncCart } = useCartStore();
   const { deliveryAddress } = useShopStore();
 
   const enrichedItems = useMemo(() => {
@@ -33,6 +34,17 @@ export const CartViewer: React.FC<CartViewerProps> = ({
       return { ...item, product };
     }).filter(item => item.product !== undefined) as (typeof items[0] & { product: Product })[];
   }, [items, products]);
+
+  // Clean up ghost items (items in cart that no longer exist in products list)
+  useEffect(() => {
+    if (!isLoading && products.length > 0) {
+        // Collect IDs of items that were successfully enriched (found in product list)
+        const validCartIds = enrichedItems.map(i => i.cartId);
+        if (validCartIds.length !== items.length) {
+            syncCart(validCartIds);
+        }
+    }
+  }, [isLoading, products.length, enrichedItems, items.length, syncCart]);
 
   // Logic to determine Order Context
   const orderContext = useMemo(() => {
@@ -187,7 +199,7 @@ export const CartViewer: React.FC<CartViewerProps> = ({
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#09090b] border-t border-white/5 z-30 pb-safe">
         <div className="flex justify-between items-center mb-4 text-sm">
             <span className="text-gray-400">Итого</span>
-            <span className="text-xl font-bold text-white">{(totalAmount / 100).toFixed(0)}₽</span>
+            <span className="text-xl font-bold text-white">{formatPrice(totalAmount)}</span>
         </div>
         
         <button

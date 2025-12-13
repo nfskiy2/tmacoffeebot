@@ -8,6 +8,7 @@ import { Product, Shop } from '../../../shared/model/types';
 import { cn } from '../../../shared/utils/cn';
 import { calculateCartTotal } from '../../../entities/cart/lib/cart-helpers';
 import { useCreateOrder } from '../../../features/checkout/model/use-create-order';
+import { formatPrice } from '../../../shared/lib/currency';
 
 // Helper to generate time slots
 const generateTimeSlots = () => {
@@ -205,15 +206,15 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
               <section className="space-y-3 pt-4 border-t border-white/5">
                    <div className="flex justify-between items-center text-[15px] font-medium text-gray-400">
                       <span>Товары</span>
-                      <span className="text-white">{(totalAmount / 100).toFixed(0)}₽</span>
+                      <span className="text-white">{formatPrice(totalAmount)}</span>
                    </div>
                    <div className="flex justify-between items-center text-[15px] font-medium text-gray-400">
                       <span>Доставка/Сервис</span>
-                      <span className="text-white">{deliveryCost}₽</span>
+                      <span className="text-white">{formatPrice(deliveryCost)}</span>
                    </div>
                    <div className="flex justify-between items-center text-[20px] font-bold text-[#38bdf8] mt-2">
                       <span>Итого</span>
-                      <span>{(finalTotal / 100).toFixed(0)}₽</span>
+                      <span>{formatPrice(finalTotal)}</span>
                    </div>
               </section>
            </div>
@@ -225,7 +226,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
                 disabled={createOrderMutation.isPending}
                 className="w-full bg-[#38bdf8] text-black font-extrabold text-[16px] py-4 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50"
               >
-                {createOrderMutation.isPending ? 'Обработка...' : `Оплатить ${(finalTotal / 100).toFixed(0)}₽`}
+                {createOrderMutation.isPending ? 'Обработка...' : `Оплатить ${formatPrice(finalTotal)}`}
               </button>
            </div>
 

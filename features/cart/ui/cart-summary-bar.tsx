@@ -6,6 +6,7 @@ import { ArrowRight, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '../../../entities/cart/model/cart.store';
 import { Product } from '../../../shared/model/types';
 import { calculateCartTotal } from '../../../entities/cart/lib/cart-helpers';
+import { formatPrice } from '../../../shared/lib/currency';
 
 interface CartSummaryBarProps {
   products: Product[];
@@ -43,7 +44,7 @@ export const CartSummaryBar: React.FC<CartSummaryBarProps> = ({ products }) => {
             </div>
             <div className="flex flex-col items-start justify-center h-full">
                <span className="font-bold text-[15px] leading-none">
-                 {(totalPrice / 100).toFixed(0)}₽
+                 {formatPrice(totalPrice)}
                </span>
                <span className="text-[10px] text-black/60 font-bold uppercase tracking-wide leading-tight mt-0.5">
                  {totalQuantity} шт.

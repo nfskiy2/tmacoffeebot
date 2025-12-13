@@ -22,6 +22,8 @@ interface CartState {
   getTotalItems: () => number;
   // Action to check if the persisted cart belongs to the current shop context
   validateSession: (currentShopId: string) => void;
+  // Syncs cart items against a valid list of IDs (prevents ghost items)
+  syncCart: (validCartIds: string[]) => void;
 }
 
 export const useCartStore = create<CartState>()(
@@ -38,6 +40,17 @@ export const useCartStore = create<CartState>()(
           // If state has a shopId, but it differs from the active one -> Clear
           if (shopId && shopId !== currentShopId) {
               set({ items: [], shopId: currentShopId });
+          }
+      },
+
+      syncCart: (validCartIds: string[]) => {
+          const { items } = get();
+          // Keep only items that are in the validCartIds list
+          // This assumes the caller has already validated which items are legitimate
+          const filteredItems = items.filter(item => validCartIds.includes(item.cartId));
+          
+          if (filteredItems.length !== items.length) {
+              set({ items: filteredItems });
           }
       },
 

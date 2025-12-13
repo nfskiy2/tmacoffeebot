@@ -81,11 +81,7 @@ export const ProductFeed: React.FC<ProductFeedProps> = ({
     if (currentShopId) {
         addItem(product, currentShopId);
     }
-    
-    // Haptic visual feedback
-    const btn = e.currentTarget as HTMLButtonElement;
-    btn.classList.add('scale-90');
-    setTimeout(() => btn.classList.remove('scale-90'), 150);
+    // Note: Visual feedback is now handled by CSS active state in ProductCard
   }, [addItem, currentShopId]);
 
   // Performance Optimization: Memoize the grouping structure

@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { Plus } from 'lucide-react';
 import { Product } from '../../../shared/model/types';
 import { cn } from '../../../shared/utils/cn';
 import { Image } from '../../../shared/ui/image';
+import { formatPrice } from '../../../shared/lib/currency';
 
 interface ProductCardProps {
   product: Product;
@@ -54,13 +56,13 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
           <div className="flex flex-col">
              <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Цена</span>
              <span className="text-white text-[16px] font-bold tracking-tight">
-                {(product.price / 100).toFixed(0)}<span className="text-sm font-normal text-gray-400 ml-0.5">₽</span>
+                {formatPrice(product.price)}
              </span>
           </div>
           
           <button
             onClick={handleAddToCart}
-            className="w-9 h-9 flex items-center justify-center bg-white text-black rounded-[12px] shadow-lg shadow-white/5 active:bg-[#38bdf8] transition-colors"
+            className="w-9 h-9 flex items-center justify-center bg-white text-black rounded-[12px] shadow-lg shadow-white/5 active:bg-[#38bdf8] active:scale-90 transition-all duration-200"
             aria-label="Добавить в корзину"
           >
             <Plus size={20} strokeWidth={2.5} />

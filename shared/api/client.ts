@@ -4,23 +4,26 @@ import { mockRouter } from './mocks/mock-router';
 
 // --- Client Implementation ---
 
+export interface ApiRequestConfig extends RequestInit {
+  skipShopIdCheck?: boolean;
+}
+
 class ApiClient {
   private baseUrl = ''; // Empty for mock usage, usually process.env.API_URL
 
   private async request<T>(
     endpoint: string, 
     schema?: ZodSchema<T>, 
-    config: RequestInit = {},
+    config: ApiRequestConfig = {},
     shopId?: string
   ): Promise<T> {
     // SECURITY IMPROVEMENT:
     // We strictly require shopId for most requests to ensure tenant isolation.
-    // We do NOT default to a mock ID here to prevent accidental data mixing.
     let currentShopId = shopId;
 
     if (!currentShopId) {
-        // Exception: Getting the list of available shops doesn't require a specific shop context
-        if (endpoint === '/api/v1/shops') {
+        // Allow bypassing the check explicitly via config (e.g. for listing available shops)
+        if (config.skipShopIdCheck) {
             currentShopId = 'global'; 
         } else {
              const errorMsg = `[API Security] X-Shop-Id header is required for ${endpoint}. Request blocked.`;
@@ -86,9 +89,8 @@ class ApiClient {
     throw new Error(`API Error: ${status}`);
   }
 
-  get<T>(endpoint: string, schema?: ZodSchema<T>, params?: Record<string, string>, shopId?: string) {
-    const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
-    return this.request<T>(endpoint + queryString, schema, { method: 'GET' }, shopId);
+  get<T>(endpoint: string, schema?: ZodSchema<T>, config?: ApiRequestConfig, shopId?: string) {
+    return this.request<T>(endpoint, schema, { method: 'GET', ...config }, shopId);
   }
 
   post<T>(endpoint: string, body: any, schema?: ZodSchema<T>, shopId?: string) {

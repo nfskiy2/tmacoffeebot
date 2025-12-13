@@ -45,8 +45,8 @@ interface ErrorBoundaryState {
 }
 
 // Error Boundary Component
-// Fix: Use named import 'Component' instead of 'React.Component' to ensure correct type resolution
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+// Fix: Explicitly extend React.Component to ensure type inference works for state and props
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };

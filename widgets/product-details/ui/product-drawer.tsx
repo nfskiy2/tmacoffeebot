@@ -15,6 +15,7 @@ import { AddonRow } from '../../../entities/product/ui/addon-row';
 import { cn } from '../../../shared/utils/cn';
 import { calculatePrice } from '../../../entities/cart/lib/cart-helpers';
 import { Image } from '../../../shared/ui/image';
+import { formatPrice } from '../../../shared/lib/currency';
 
 // Extract Addon type safely from Product
 type ProductAddon = NonNullable<Product['addons']>[number];
@@ -122,14 +123,14 @@ export const ProductDrawer: React.FC = () => {
 
   const calculateTotal = () => {
     if (!product) return 0;
-    // Use spread syntax for cleaner array conversion
-    return calculatePrice(product, [...selectedAddons], quantity);
+    // Use Array.from for clearer intention than spread
+    return calculatePrice(product, Array.from(selectedAddons), quantity);
   };
 
   const handleAddToCart = () => {
     if (!product || !currentShopId) return;
-    // Fix: Explicitly spread Set to Array to avoid type inference issues
-    const addonsArray: string[] = [...selectedAddons];
+    // Fix: Use Array.from to ensure proper array conversion from Set
+    const addonsArray = Array.from(selectedAddons);
     addItem(product, currentShopId, quantity, addonsArray);
     handleClose();
   };
@@ -207,7 +208,7 @@ export const ProductDrawer: React.FC = () => {
               <div className="flex items-center justify-between mb-4">
                  <span className="text-xl font-bold text-white">Итог</span>
                  <span className="text-xl font-bold text-white">
-                   {(calculateTotal() / 100).toFixed(0)}₽
+                   {formatPrice(calculateTotal())}
                  </span>
               </div>
               

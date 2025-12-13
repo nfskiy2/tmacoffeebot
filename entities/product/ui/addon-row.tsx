@@ -1,6 +1,8 @@
+
 import React from 'react';
 import { Check } from 'lucide-react';
 import { cn } from '../../../shared/utils/cn';
+import { formatPrice } from '../../../shared/lib/currency';
 
 interface AddonRowProps {
   name: string;
@@ -33,7 +35,7 @@ export const AddonRow: React.FC<AddonRowProps> = ({
       </div>
       
       <span className="text-[15px] font-semibold text-white">
-        + {(price / 100).toFixed(0)}₽
+        + {formatPrice(price)}
       </span>
     </div>
   );
