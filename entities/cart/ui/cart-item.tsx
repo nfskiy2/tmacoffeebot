@@ -1,6 +1,8 @@
+
 import React from 'react';
 import { Minus, Plus, X } from 'lucide-react';
-import { CartItem as CartItemType, Product } from '../../../../types';
+import { CartItem as CartItemType, Product } from '../../../shared/model/types';
+import { calculateItemTotal } from '../lib/cart-helpers';
 
 interface CartItemProps {
   item: CartItemType;
@@ -20,12 +22,8 @@ export const CartItem: React.FC<CartItemProps> = ({
   // 1. Resolve selected addons objects from product.addons using IDs
   const selectedAddons = product.addons?.filter(a => item.selectedAddons?.includes(a.id)) || [];
   
-  // 2. Calculate Unit Price (Base + Addons)
-  const addonsCost = selectedAddons.reduce((acc, curr) => acc + curr.price, 0);
-  const singleItemPrice = product.price + addonsCost;
-  
-  // 3. Total for this line item
-  const totalPrice = singleItemPrice * item.quantity;
+  // 2. Use helper for total
+  const totalPrice = calculateItemTotal(item, product);
 
   return (
     <div className="flex gap-4 w-full bg-[#18181b] p-3 rounded-2xl relative group">

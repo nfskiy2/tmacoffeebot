@@ -1,6 +1,7 @@
+
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { CartItem, Product } from '../../../types';
+import { CartItem, Product } from '../../../shared/model/types';
 
 export type CartStateItem = CartItem & {
   cartId: string;

@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState } from 'react';
 import { Drawer } from 'vaul';
 import { useMutation } from '@tanstack/react-query';
@@ -6,8 +7,9 @@ import { MapPin, CreditCard, LayoutGrid, Clock, Utensils, Armchair, ChevronDown,
 import { useCartStore } from '../../../entities/cart/model/cart.store';
 import { useShopStore } from '../../../entities/shop/model/shop.store';
 import { api } from '../../../shared/api/client';
-import { Product, Shop } from '../../../types';
+import { Product, Shop } from '../../../shared/model/types';
 import { cn } from '../../../shared/utils/cn';
+import { calculateCartTotal } from '../../../entities/cart/lib/cart-helpers';
 
 // Helper to generate time slots
 const generateTimeSlots = () => {
@@ -52,18 +54,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
   const timeSlots = useMemo(() => generateTimeSlots(), []);
 
   const totalAmount = useMemo(() => {
-    return items.reduce((acc, item) => {
-      const product = products.find(p => p.id === item.productId);
-      if (!product) return acc;
-      let itemPrice = product.price;
-      if (item.selectedAddons) {
-         item.selectedAddons.forEach(addonId => {
-            const addon = product.addons?.find(a => a.id === addonId);
-            if (addon) itemPrice += addon.price;
-         });
-      }
-      return acc + (itemPrice * item.quantity);
-    }, 0);
+    return calculateCartTotal(items, products);
   }, [items, products]);
 
   const deliveryCost = 0;

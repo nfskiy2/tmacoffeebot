@@ -1,11 +1,12 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronDown, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../../shared/api/client';
-import { DELIVERY_SHOP_ID } from '../../../shared/api/mocks/data';
-import { Shop } from '../../../types';
+import { DELIVERY_SHOP_ID } from '../../../shared/config/constants';
+import { Shop } from '../../../shared/model/types';
 import { useShopStore } from '../../../entities/shop/model/shop.store';
 import { useCartStore } from '../../../entities/cart/model/cart.store';
 import { ShopCard } from '../../../entities/shop/ui/shop-card';

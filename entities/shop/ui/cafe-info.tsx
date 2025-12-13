@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { ChevronDown, Clock } from 'lucide-react';
-import { Shop } from '../../../../types';
+import { Shop } from '../../../shared/model/types';
 import { cn } from '../../../shared/utils/cn';
 
 interface CafeInfoProps {

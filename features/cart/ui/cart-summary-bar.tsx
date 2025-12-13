@@ -1,9 +1,11 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '../../../entities/cart/model/cart.store';
-import { Product } from '../../../types';
+import { Product } from '../../../shared/model/types';
+import { calculateCartTotal } from '../../../entities/cart/lib/cart-helpers';
 
 interface CartSummaryBarProps {
   products: Product[];
@@ -14,22 +16,7 @@ export const CartSummaryBar: React.FC<CartSummaryBarProps> = ({ products }) => {
   const { items } = useCartStore();
 
   const totalQuantity = items.reduce((acc, item) => acc + item.quantity, 0);
-  
-  const totalPrice = items.reduce((acc, item) => {
-    const product = products.find(p => p.id === item.productId);
-    if (!product) return acc;
-    
-    let itemPrice = product.price;
-    // Add addons price
-    if (item.selectedAddons) {
-       item.selectedAddons.forEach(addonId => {
-          const addon = product.addons?.find(a => a.id === addonId);
-          if (addon) itemPrice += addon.price;
-       });
-    }
-    
-    return acc + (itemPrice * item.quantity);
-  }, 0);
+  const totalPrice = calculateCartTotal(items, products);
 
   // Don't render anything if empty
   if (totalQuantity === 0) return null;

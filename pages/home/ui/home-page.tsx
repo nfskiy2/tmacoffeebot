@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { StickyHeader } from '../../../widgets/layout/ui/sticky-header';
@@ -5,7 +6,7 @@ import { ProductFeed } from '../../../widgets/menu/ui/product-feed';
 import { CartSummaryBar } from '../../../features/cart/ui/cart-summary-bar';
 import { ProductDrawer } from '../../../widgets/product-details/ui/product-drawer';
 import { api } from '../../../shared/api/client';
-import { Shop, Category, Product } from '../../../types';
+import { Shop, Category, Product } from '../../../shared/model/types';
 
 const HomePage = () => {
   const [activeCategoryId, setActiveCategoryId] = useState<string>('');

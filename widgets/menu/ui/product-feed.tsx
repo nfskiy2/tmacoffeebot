@@ -1,6 +1,7 @@
+
 import React, { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Category, Product } from '../../../types';
+import { Category, Product } from '../../../shared/model/types';
 import { ProductCard } from '../../../entities/product/ui/product-card';
 import { useCartStore } from '../../../entities/cart/model/cart.store';
 

@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { Shop } from '../../../types';
+import { Shop } from '../../../shared/model/types';
 import { cn } from '../../../shared/utils/cn';
 import { Check } from 'lucide-react';
 

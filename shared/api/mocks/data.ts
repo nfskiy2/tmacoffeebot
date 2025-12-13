@@ -1,7 +1,9 @@
-import { Shop, Category, Product } from '../../../types';
+
+import { Shop, Category, Product } from '../../model/types';
+import { DELIVERY_SHOP_ID } from '../../config/constants';
 
 export const MOCK_SHOP_ID = 'shop_1';
-export const DELIVERY_SHOP_ID = 'shop_delivery_tomsk';
+export { DELIVERY_SHOP_ID };
 
 // --- SHOPS LIST ---
 

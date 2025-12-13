@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { CafeInfo } from '../../../entities/shop/ui/cafe-info';
 import { ProductCard } from '../../../entities/product/ui/product-card';

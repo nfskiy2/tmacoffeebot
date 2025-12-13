@@ -1,8 +1,9 @@
+
 import React, { useEffect } from 'react';
 import { motion, useTransform, useMotionValue } from 'framer-motion';
 import { Clock, ShoppingCart, ChevronDown, Utensils, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Shop, Category } from '../../../types';
+import { Shop, Category } from '../../../shared/model/types';
 import { cn } from '../../../shared/utils/cn';
 import { useShopStore } from '../../../entities/shop/model/shop.store';
 

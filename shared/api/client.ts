@@ -1,5 +1,6 @@
+
 import { MOCK_SHOP, MOCK_SHOPS, SHOP_DATABASES, MOCK_SHOP_ID } from './mocks/data';
-import { OrderPayload, Order } from '../../types';
+import { OrderPayload, Order } from '../model/types';
 
 // Storage key for the shop ID
 const STORAGE_KEY_SHOP_ID = 'tma_shop_id';

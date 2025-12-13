@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Plus } from 'lucide-react';
-import { Product } from '../../../../types';
+import { Product } from '../../../shared/model/types';
 import { cn } from '../../../shared/utils/cn';
 
 interface ProductCardProps {

@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -7,9 +8,10 @@ import { useCartStore } from '../../../entities/cart/model/cart.store';
 import { useShopStore } from '../../../entities/shop/model/shop.store';
 import { CartItem } from '../../../entities/cart/ui/cart-item';
 import { api } from '../../../shared/api/client';
-import { Product, Shop } from '../../../types';
+import { Product, Shop } from '../../../shared/model/types';
 import { cn } from '../../../shared/utils/cn';
 import { CheckoutDrawer } from '../../../widgets/checkout/ui/checkout-drawer';
+import { calculateCartTotal } from '../../../entities/cart/lib/cart-helpers';
 
 const CartPage = () => {
   const navigate = useNavigate();
@@ -69,16 +71,7 @@ const CartPage = () => {
     };
   }, [deliveryAddress, diningOption, shop]);
 
-  const totalAmount = enrichedItems.reduce((acc, item) => {
-    let itemPrice = item.product.price;
-    if (item.selectedAddons) {
-       item.selectedAddons.forEach(addonId => {
-          const addon = item.product.addons?.find(a => a.id === addonId);
-          if (addon) itemPrice += addon.price;
-       });
-    }
-    return acc + (itemPrice * item.quantity);
-  }, 0);
+  const totalAmount = calculateCartTotal(items, products);
 
   const ContextIcon = orderContext.icon;
 

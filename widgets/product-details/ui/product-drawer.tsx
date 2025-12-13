@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Drawer } from 'vaul';
 import { useSearchParams } from 'react-router-dom';
@@ -6,11 +7,12 @@ import { X, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { api } from '../../../shared/api/client';
-import { Product } from '../../../types';
+import { Product } from '../../../shared/model/types';
 import { useCartStore } from '../../../entities/cart/model/cart.store';
 import { QuantitySelector } from '../../../shared/ui/quantity-selector';
 import { AddonRow } from '../../../entities/product/ui/addon-row';
 import { cn } from '../../../shared/utils/cn';
+import { calculatePrice } from '../../../entities/cart/lib/cart-helpers';
 
 interface AddonGroupProps {
   title: string;
@@ -118,12 +120,7 @@ export const ProductDrawer: React.FC = () => {
 
   const calculateTotal = () => {
     if (!product) return 0;
-    let price = product.price;
-    selectedAddons.forEach(addonId => {
-      const addon = product.addons?.find(a => a.id === addonId);
-      if (addon) price += addon.price;
-    });
-    return price * quantity;
+    return calculatePrice(product, Array.from(selectedAddons), quantity);
   };
 
   const handleAddToCart = () => {
