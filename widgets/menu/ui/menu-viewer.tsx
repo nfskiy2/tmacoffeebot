@@ -1,0 +1,1 @@
+// DELETED: Logic moved to pages/home/ui/home-page.tsx according to FSD refactor.

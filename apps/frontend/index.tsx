@@ -1,9 +1,9 @@
 import React, { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './app/ui/App';
-import './app/index.css';
+import './app/index.css'; // Import compiled Tailwind styles
 
-console.log('[App] Starting initialization from apps/frontend/index.tsx');
+console.log('[App] Starting initialization...');
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
