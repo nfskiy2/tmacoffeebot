@@ -117,12 +117,14 @@ export const CartViewer: React.FC<CartViewerProps> = ({
              <div className="bg-[#1c1c1e] p-1 rounded-xl flex relative h-10 w-full mt-1">
                  <motion.div
                    className="absolute top-1 bottom-1 bg-[#38bdf8] rounded-lg z-0"
-                   initial={false}
-                   animate={{
-                     x: diningOption === 'dine-in' ? 0 : '100%',
-                     width: '50%'
-                   }}
-                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                   {...({
+                     initial: false,
+                     animate: {
+                       x: diningOption === 'dine-in' ? 0 : '100%',
+                       width: '50%'
+                     },
+                     transition: { type: "spring", stiffness: 300, damping: 30 }
+                   } as any)}
                  />
            
                  <button

@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { api } from '../../../shared/api/client';
 import { Product } from '../../../shared/model/types';
-import { ProductSchema } from '../../../packages/shared/schemas';
+import { ProductSchema } from '@tma/shared';
 import { useCartStore } from '../../../entities/cart/model/cart.store';
 import { useShopStore } from '../../../entities/shop/model/shop.store';
 import { QuantitySelector } from '../../../shared/ui/quantity-selector';

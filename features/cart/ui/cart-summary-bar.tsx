@@ -25,10 +25,12 @@ export const CartSummaryBar: React.FC<CartSummaryBarProps> = ({ products }) => {
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ y: 120, opacity: 0, scale: 0.95 }}
-        animate={{ y: 0, opacity: 1, scale: 1 }}
-        exit={{ y: 120, opacity: 0, scale: 0.95 }}
-        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        {...({
+          initial: { y: 120, opacity: 0, scale: 0.95 },
+          animate: { y: 0, opacity: 1, scale: 1 },
+          exit: { y: 120, opacity: 0, scale: 0.95 },
+          transition: { type: "spring", stiffness: 300, damping: 25 }
+        } as any)}
         className="fixed bottom-6 left-4 right-4 z-50 max-w-md mx-auto"
       >
         <button

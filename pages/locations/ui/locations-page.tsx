@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, AlertTriangle } from 'lucide-react';
@@ -68,18 +69,22 @@ const LocationsPage = () => {
           <>
             {/* Backdrop */}
             <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }}
+              {...({
+                initial: { opacity: 0 },
+                animate: { opacity: 1 },
+                exit: { opacity: 0 }
+              } as any)}
               className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
               onClick={() => setShowWarning(false)}
             />
             
             {/* Modal */}
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              {...({
+                initial: { opacity: 0, scale: 0.9, y: 20 },
+                animate: { opacity: 1, scale: 1, y: 0 },
+                exit: { opacity: 0, scale: 0.9, y: 20 }
+              } as any)}
               className="fixed left-4 right-4 top-1/2 -translate-y-1/2 bg-[#1c1c1e] rounded-[24px] p-6 z-50 shadow-2xl border border-white/5"
             >
                 <div className="flex flex-col items-center text-center">
